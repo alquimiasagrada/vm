@@ -2836,6 +2836,7 @@ function drawTodaySpread() {
       drawTodaySpread()
         .then(({ cards, synthesisIndex }) => {
           revealSpread(cards, synthesisIndex, true);
+          spreadEl.querySelectorAll('.tarot-card-single').forEach(b => b.disabled = false);
         })
         .catch(() => {
           statusEl.classList.add('error');
@@ -2848,4 +2849,3 @@ function drawTodaySpread() {
 
 </body>
 </html>
-
