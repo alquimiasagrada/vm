@@ -1,3081 +1,1871 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Alquimia Sagrada · Terapias Cósmicas</title>
-
-<!-- Preconexión temprana a los CDNs (los scripts se cargan al final del body
-     para no bloquear el primer renderizado; esto solo adelanta el DNS/TLS) -->
-<link rel="preconnect" href="https://cdnjs.cloudflare.com">
-<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-
-<!-- Precarga de las 3 fuentes que se ven "arriba del pliegue" apenas carga
-     la página (título, tagline y el texto de la máquina de escribir). Esto
-     hace que el navegador empiece a descargarlas en paralelo con el HTML,
-     en vez de recién enterarse de que las necesita cuando ya calculó los
-     estilos — que es lo que causa el salto/demora de 1-2s. -->
-<link rel="preload" href="assets/fonts/Tangerine-Bold.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="assets/fonts/Tangerine-Regular.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="assets/fonts/CormorantGaramond-Italic.woff2" as="font" type="font/woff2" crossorigin>
-
-<!-- Tipografías: auto-alojadas en assets/fonts/ (ver @font-face en estilos.css) -->
-<link rel="stylesheet" href="assets/css/estilos.css">
-
-<style>
-  /* Estilo para el botón del Header en el index */
-  .nav-sobre-mi-btn {
-    position: static;
-    font-family: var(--font-body);
-    font-size: 0.78rem;
-    font-weight: 500;
-    text-decoration: none;
-    color: var(--text-main);
-    padding: 6px 12px;
-    border-radius: 50px;
-    border: 1px solid var(--gold-dim);
-    background: rgba(255, 250, 240, 0.6);
-    backdrop-filter: blur(8px);
-    white-space: nowrap;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    z-index: 2;
-  }
-
-  .nav-sobre-mi-btn:hover {
-    color: var(--gold);
-    border-color: var(--gold);
-    transform: translateY(-1px);
-    box-shadow: 0 0 10px rgba(201, 152, 47, 0.2);
-  }
-
-  /* --- ADAPTACIÓN PARA MÓVILES --- */
-  @media (max-width: 480px) {
-    .nav-sobre-mi-btn .btn-text {
-      display: none; 
-    }
-    .nav-sobre-mi-btn {
-      padding: 8px;
-      border-radius: 50%;
-    }
-    .brand-title {
-      font-size: 1.4rem;
-      letter-spacing: 0;
-      margin: 0 5px;
-    }
-  }
-  /* =========================================
-     FONDO CÓSMICO ANIMADO
-     (.cosmic-bg y @keyframes starDrift están en estilos.css; estas capas
-     quedan acá porque usan position:absolute dentro de .parallax-layer
-     para el efecto de scroll, a diferencia de sobre-mi.html)
-     ========================================= */
-  /* Wrapper que recibe el desplazamiento de parallax por scroll (JS),
-     dejando la animación de rotación propia de cada capa intacta */
-  .parallax-layer {
-    position: fixed;
-    inset: -50%;
-    z-index: 0;
-    pointer-events: none;
-    will-change: transform;
-  }
-
-  .stars-layer-1 {
-    position: absolute; inset: 0; z-index: 0;
-    background-image: 
-      radial-gradient(1px 1px at 10% 20%, rgba(201,152,47,0.55) 100%, transparent),
-      radial-gradient(1px 1px at 80% 40%, rgba(47,118,129,0.45) 100%, transparent),
-      radial-gradient(1.5px 1.5px at 30% 70%, rgba(201,152,47,0.5) 100%, transparent),
-      radial-gradient(1px 1px at 55% 15%, rgba(255,255,255,0.4) 100%, transparent),
-      radial-gradient(1px 1px at 5% 85%, rgba(201,152,47,0.4) 100%, transparent),
-      radial-gradient(1.5px 1.5px at 65% 55%, rgba(47,118,129,0.4) 100%, transparent),
-      radial-gradient(1px 1px at 92% 65%, rgba(255,255,255,0.35) 100%, transparent),
-      radial-gradient(1px 1px at 40% 35%, rgba(201,152,47,0.35) 100%, transparent),
-      radial-gradient(1.5px 1.5px at 75% 90%, rgba(47,118,129,0.35) 100%, transparent),
-      radial-gradient(1px 1px at 15% 45%, rgba(255,255,255,0.3) 100%, transparent);
-    background-size: 250px 250px;
-    opacity: 0.5;
-    animation: starDrift 150s linear infinite;
-    pointer-events: none;
-  }
-
-  .stars-layer-2 {
-    position: absolute; inset: 0; z-index: 0;
-    background-image: 
-      radial-gradient(2px 2px at 90% 80%, rgba(47,118,129,0.35) 100%, transparent),
-      radial-gradient(2px 2px at 50% 10%, rgba(201,152,47,0.5) 100%, transparent),
-      radial-gradient(1px 1px at 20% 50%, rgba(201,152,47,0.4) 100%, transparent),
-      radial-gradient(1.5px 1.5px at 35% 85%, rgba(255,255,255,0.35) 100%, transparent),
-      radial-gradient(1px 1px at 70% 25%, rgba(47,118,129,0.3) 100%, transparent),
-      radial-gradient(2px 2px at 10% 15%, rgba(201,152,47,0.3) 100%, transparent),
-      radial-gradient(1px 1px at 85% 55%, rgba(255,255,255,0.3) 100%, transparent);
-    background-size: 400px 400px;
-    opacity: 0.5;
-    animation: starDrift 90s linear infinite reverse;
-    pointer-events: none;
-  }
-
-  /* =========================================
-     TWINKLE ALEATORIO
-     ========================================= */
-  .twinkle-star {
-    position: fixed;
-    width: 2px; height: 2px;
-    background: var(--teal);
-    color: var(--teal);
-    border-radius: 50%;
-    z-index: 0;
-    pointer-events: none;
-    opacity: 0;
-    animation: twinkle 4s ease-in-out infinite;
-  }
-  .twinkle-star.gold { background: var(--gold); color: var(--gold); }
-
-  @keyframes twinkle {
-    0%, 100% { opacity: 0; transform: scale(0.6); }
-    50% { opacity: 1; transform: scale(1.6); box-shadow: 0 0 6px 1px currentColor; }
-  }
-
-  .tw-1 { top: 12%; left: 22%; animation-duration: 3.2s; animation-delay: 0.2s; }
-  .tw-2 { top: 68%; left: 8%; animation-duration: 4.5s; animation-delay: 1.1s; color: var(--gold); }
-  .tw-3 { top: 24%; left: 78%; animation-duration: 3.8s; animation-delay: 2s; }
-  .tw-4 { top: 82%; left: 60%; animation-duration: 5s; animation-delay: 0.6s; color: var(--gold); }
-  .tw-5 { top: 40%; left: 92%; animation-duration: 3.5s; animation-delay: 1.6s; }
-  .tw-6 { top: 55%; left: 35%; animation-duration: 4.2s; animation-delay: 2.6s; color: var(--gold); }
-  .tw-7 { top: 6%; left: 55%; animation-duration: 3.9s; animation-delay: 0.9s; }
-  .tw-8 { top: 90%; left: 15%; animation-duration: 4.7s; animation-delay: 1.9s; }
-
-  /* =========================================
-     PARTÍCULAS MÍSTICAS
-     Pocas, grandes y lentas: todo el "costo" es un único radial-gradient
-     por partícula (sin blur ni box-shadow) y una animación que solo usa
-     transform/opacity — igual de liviano en un celular de gama baja que
-     en desktop, así que se dejan activas en todos los tamaños de pantalla.
-     ========================================= */
-  .mystic-particle {
-    position: fixed;
-    z-index: 0;
-    border-radius: 50%;
-    pointer-events: none;
-    background: radial-gradient(circle, rgba(201,152,47,0.22) 0%, rgba(201,152,47,0.07) 45%, transparent 72%);
-    animation: floatMystic 26s ease-in-out infinite;
-    will-change: transform;
-  }
-  .mp-1 {
-    width: 220px; height: 220px;
-    top: 14%; left: 6%;
-    animation-duration: 27s;
-  }
-  .mp-2 {
-    width: 170px; height: 170px;
-    bottom: 10%; right: 8%;
-    background: radial-gradient(circle, rgba(47,118,129,0.2) 0%, rgba(47,118,129,0.06) 45%, transparent 72%);
-    animation-duration: 33s;
-    animation-delay: -9s;
-  }
-  .mp-3 {
-    width: 260px; height: 260px;
-    top: 52%; right: 22%;
-    animation-duration: 40s;
-    animation-delay: -17s;
-  }
-
-  @keyframes floatMystic {
-    0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.65; }
-    50% { transform: translate(36px, -54px) scale(1.15); opacity: 1; }
-  }
-
-  /* =========================================
-     CONSTELACIÓN SVG
-     ========================================= */
-  .constellation-svg {
-    position: fixed;
-    inset: 0;
-    z-index: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    opacity: 0.35;
-  }
-  .constellation-svg circle { fill: var(--gold); }
-  .constellation-svg line {
-    stroke: var(--gold);
-    stroke-width: 0.6;
-    stroke-dasharray: 4 3;
-    animation: constellationFade 8s ease-in-out infinite alternate;
-  }
-  .constellation-svg .const-b line { animation-delay: -3s; }
-
-  @keyframes constellationFade {
-    0% { opacity: 0.15; }
-    100% { opacity: 0.55; }
-  }
-
-  .shooting-star {
-    position: fixed; z-index: 0;
-    width: 2px; height: 80px;
-    background: linear-gradient(to bottom, rgba(201,152,47,0.85), transparent);
-    border-radius: 50%;
-    opacity: 0;
-    pointer-events: none;
-  }
-  .ss-1 { top: -10%; left: 30%; animation: shoot 8s linear infinite 2s; }
-  .ss-2 { top: -10%; right: 20%; animation: shoot 12s linear infinite 7s; }
-  .ss-3 { top: 20%; right: -10%; animation: shoot 15s linear infinite 4s; }
-
-  @keyframes shoot {
-    0% { transform: translate(0, 0) rotate(45deg) scale(0); opacity: 0; }
-    5% { transform: translate(-50px, 50px) rotate(45deg) scale(1.5); opacity: 1; }
-    15% { transform: translate(-300px, 300px) rotate(45deg) scale(0); opacity: 0; }
-    100% { opacity: 0; }
-  }
-
-  .cross-flare {
-    position: fixed;
-    width: 2px; height: 2px;
-    background: var(--gold);
-    border-radius: 50%;
-    box-shadow: 0 0 10px 2px rgba(201,152,47,0.5);
-    animation: pulseFlare 5s infinite alternate ease-in-out;
-    pointer-events: none;
-    z-index: 1;
-  }
-  .cross-flare::before, .cross-flare::after {
-    content: ''; position: absolute;
-    top: 50%; left: 50%; transform: translate(-50%, -50%);
-    background: linear-gradient(90deg, transparent, rgba(201,152,47,0.6), transparent);
-  }
-  .cross-flare::before { width: 40px; height: 1px; }
-  .cross-flare::after { width: 1px; height: 40px; }
-  
-  .cf-1 { top: 20%; left: 12%; animation-duration: 4s; }
-  .cf-2 { top: 75%; left: 45%; animation-delay: -2s; animation-duration: 6s; }
-  .cf-3 { top: 30%; right: 18%; animation-delay: -1s; }
-  .cf-4 { top: 85%; right: 35%; animation-delay: -3s; animation-duration: 7s; }
-  .cf-5 { top: 10%; right: 45%; animation-delay: -4s; }
-
-  @keyframes pulseFlare {
-    0% { transform: scale(0.6) rotate(-15deg); opacity: 0.3; }
-    100% { transform: scale(1.2) rotate(15deg); opacity: 1; filter: drop-shadow(0 0 12px var(--gold)); }
-  }
-
-  .zodiac-bg {
-    position: fixed; font-family: serif; color: rgba(28, 49, 68, 0.04);
-    font-size: 7rem; pointer-events: none; z-index: 0;
-    animation: floatZodiac 20s ease-in-out infinite alternate;
-  }
-  .z-1 { top: 15%; left: 5%; }
-  .z-2 { top: 65%; left: 8%; animation-delay: -5s; animation-duration: 25s; }
-  .z-3 { top: 20%; right: 8%; animation-delay: -10s; }
-  .z-4 { top: 80%; right: 12%; animation-delay: -15s; animation-duration: 22s; }
-
-  @keyframes floatZodiac {
-    0% { transform: translate(0, 0) rotate(0deg); }
-    100% { transform: translate(30px, -20px) rotate(10deg); }
-  }
-
-  /* =========================================
-     INTRODUCCIÓN / TYPEWRITER (SEMI-CURSIVA)
-     ========================================= */
-  .hero-block {
-    min-height: 90vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-  }
-  .hero-block .item-photo { display: none; }
-
-  .typewriter-container {
-    font-family: var(--font-heading);
-    font-style: italic;
-    font-weight: 400;
-    font-size: clamp(1.2rem, 2vw, 1.6rem);
-    color: var(--gold);
-    line-height: 1.5;
-    letter-spacing: 0.05em;
-    min-height: 3.2em; /* Espacio reservado para evitar saltos */
-    text-shadow: 0 0 15px rgba(201, 152, 47, 0.15);
-  }
-
-  .brand-tagline {
-    font-family: var(--font-script);
-    font-size: clamp(1.6rem, 2.6vw, 2.1rem);
-    color: var(--teal);
-    margin-top: 0.5rem;
-  }
-
-  .cursor-blink {
-    display: inline-block;
-    width: 2px;
-    height: 1.2em;
-    background-color: var(--gold);
-    margin-left: 4px;
-    vertical-align: middle;
-    animation: blinkCursor 0.8s infinite;
-  }
-
-  @keyframes blinkCursor {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0; }
-  }
-
-  .eq-bars {
-    display: flex;
-    align-items: flex-end;
-    gap: 2px;
-    height: 12px;
-    margin-left: 4px;
-  }
-  .eq-bar {
-    width: 2px;
-    background: var(--gold);
-    height: 3px;
-    transform-origin: bottom;
-    transition: background 0.4s ease;
-  }
-  .playing .eq-bar:nth-child(1) { animation: bounceEq 0.6s infinite alternate; }
-  .playing .eq-bar:nth-child(2) { animation: bounceEq 0.4s infinite alternate; animation-delay: 0.1s; }
-  .playing .eq-bar:nth-child(3) { animation: bounceEq 0.5s infinite alternate; animation-delay: 0.2s; }
-
-  @keyframes bounceEq {
-    0% { transform: scaleY(1); }
-    100% { transform: scaleY(4); }
-  }
-
-  /* =========================================
-     LAYOUT SPLIT SCROLL
-     ========================================= */
-  .scroll-container {
-    display: flex;
-    position: relative;
-    z-index: 10;
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 2vh 4vw 0;
-  }
-
-  .text-col {
-    width: 50%;
-    padding: 10vh 5vw 10vh 0;
-  }
-
-  .therapy-item {
-    min-height: 80vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    opacity: 0.2;
-    transition: opacity 0.6s ease;
-  }
-  .therapy-item.active { opacity: 1; }
-
-  .item-photo { display: none; }
-
-  /* =========================================
-     FADE-UP AL ENTRAR EN PANTALLA
-     (la clase .in-view se agrega por JS via IntersectionObserver)
-     ========================================= */
-  .therapy-item h2,
-  .therapy-item p,
-  .therapy-item .btn,
-  .therapy-item .item-photo {
-    opacity: 0;
-    transform: translateY(26px);
-    transition: opacity 0.7s ease, transform 0.7s ease;
-  }
-  .therapy-item.in-view h2 { opacity: 1; transform: translateY(0); }
-  .therapy-item.in-view p { opacity: 1; transform: translateY(0); transition-delay: 0.12s; }
-  .therapy-item.in-view .item-photo { opacity: 1; transform: translateY(0); }
-  .therapy-item.in-view .btn { opacity: 1; transform: translateY(0); transition-delay: 0.55s; }
-
-  .therapy-item h2 {
-    font-family: var(--font-heading);
-    font-size: clamp(3rem, 4.5vw, 4rem);
-    font-weight: 700;
-    line-height: 1.1;
-    margin-bottom: 1.5rem;
-    color: var(--ink);
-    text-shadow: 0 2px 10px rgba(28, 49, 68, 0.08);
-  }
-
-  .therapy-item p {
-    font-size: 1.15rem;
-    line-height: 1.7;
-    color: var(--text-muted);
-    max-width: 500px;
-    margin-bottom: 1.5rem;
-  }
-
-  .therapy-benefits {
-    list-style: none;
-    margin-bottom: 2rem;
-    max-width: 500px;
-  }
-  .therapy-benefits li {
-    position: relative;
-    padding-left: 1.5rem;
-    margin-bottom: 0.75rem;
-    color: var(--text-muted);
-    font-size: 1.05rem;
-    line-height: 1.5;
-    opacity: 0;
-    transform: translateX(-16px);
-    transition: opacity 0.5s ease, transform 0.5s ease;
-  }
-  .therapy-item.in-view .therapy-benefits li { opacity: 1; transform: translateX(0); }
-  .therapy-item.in-view .therapy-benefits li:nth-child(1) { transition-delay: 0.22s; }
-  .therapy-item.in-view .therapy-benefits li:nth-child(2) { transition-delay: 0.36s; }
-  .therapy-item.in-view .therapy-benefits li:nth-child(3) { transition-delay: 0.5s; }
-
-  .therapy-benefits li::before {
-    content: '✦';
-    position: absolute;
-    left: 0;
-    color: var(--gold);
-    font-size: 0.9rem;
-    top: 2px;
-  }
-  /* Destello secuencial de cada ícono al entrar en pantalla */
-  .therapy-item.in-view .therapy-benefits li:nth-child(1)::before { animation: iconFlash 0.6s ease-out 0.3s both; }
-  .therapy-item.in-view .therapy-benefits li:nth-child(2)::before { animation: iconFlash 0.6s ease-out 0.44s both; }
-  .therapy-item.in-view .therapy-benefits li:nth-child(3)::before { animation: iconFlash 0.6s ease-out 0.58s both; }
-
-  @keyframes iconFlash {
-    0% { transform: scale(0.2); opacity: 0; text-shadow: none; }
-    55% { transform: scale(1.5); opacity: 1; text-shadow: 0 0 12px var(--gold); }
-    100% { transform: scale(1); opacity: 1; text-shadow: 0 0 4px rgba(201, 152, 47, 0.5); }
-  }
-
-  .btn {
-    display: inline-block;
-    position: relative;
-    padding: 1rem 2.5rem;
-    border-radius: 50px;
-    background: var(--gold);
-    color: var(--ink);
-    font-weight: 600;
-    text-decoration: none;
-    letter-spacing: 1px;
-    font-size: 0.9rem;
-    width: fit-content;
-    box-shadow: 0 4px 20px rgba(201, 152, 47, 0.35);
-    transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.4s ease;
-  }
-  .btn:hover {
-    transform: translateY(-3px);
-  }
-
-  /* Partícula de energía que recorre el borde del botón al hacer hover */
-  .btn::after {
-    content: '';
-    position: absolute;
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: #fff;
-    box-shadow: 0 0 8px 3px rgba(255, 255, 255, 0.9), 0 0 16px 4px var(--gold);
-    top: 0;
-    left: 0;
-    opacity: 0;
-    pointer-events: none;
-  }
-  .btn:hover::after {
-    animation: sparkOrbit 1.6s linear infinite;
-  }
-
-  @keyframes sparkOrbit {
-    0%   { top: 4%;  left: 2%;  opacity: 1; }
-    24%  { top: 4%;  left: 96%; opacity: 1; }
-    26%  { top: 4%;  left: 96%; opacity: 0.7; }
-    49%  { top: 96%; left: 96%; opacity: 1; }
-    51%  { top: 96%; left: 96%; opacity: 0.7; }
-    74%  { top: 96%; left: 2%;  opacity: 1; }
-    76%  { top: 96%; left: 2%;  opacity: 0.7; }
-    100% { top: 4%;  left: 2%;  opacity: 1; }
-  }
-
-  .visual-col {
-    width: 50%;
-    height: 100vh;
-    position: sticky;
-    top: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .portal-frame {
-    position: relative;
-    width: min(42vw, 550px);
-    aspect-ratio: 1/1;
-    border-radius: 50%;
-    border: 1px solid var(--gold-dim);
-    box-shadow: 0 0 50px rgba(0,0,0,0.8), inset 0 0 30px var(--gold-dim);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    animation: portalBreathe 5.5s ease-in-out infinite;
-  }
-
-  @keyframes portalBreathe {
-    0%, 100% {
-      box-shadow: 0 0 50px rgba(0,0,0,0.8), inset 0 0 30px var(--gold-dim);
-      border-color: var(--gold-dim);
-    }
-    50% {
-      box-shadow: 0 0 75px rgba(0,0,0,0.8), inset 0 0 45px rgba(201, 152, 47, 0.35), 0 0 30px rgba(201, 152, 47, 0.2);
-      border-color: rgba(201, 152, 47, 0.45);
-    }
-  }
-
-  /* Anillos orbitales alrededor del portal, como órbitas de un sistema estelar */
-  .orbital-ring {
-    position: absolute;
-    inset: -22px;
-    border: 1px dashed var(--gold-dim);
-    border-radius: 50%;
-    pointer-events: none;
-    animation: orbitalSpin 45s linear infinite;
-  }
-  .orbital-ring-outer {
-    position: absolute;
-    inset: -44px;
-    border: 1px dashed rgba(201, 152, 47, 0.15);
-    border-radius: 50%;
-    pointer-events: none;
-    animation: orbitalSpin 70s linear infinite reverse;
-  }
-
-  @keyframes orbitalSpin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-  }
-
-  .portal-image-container {
-    position: absolute;
-    inset: 15px; 
-    border-radius: 50%;
-    overflow: hidden;
-    background: #000;
-    mask-image: radial-gradient(white, black);
-    -webkit-mask-image: -webkit-radial-gradient(white, black);
-  }
-
-  .portal-img {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    opacity: 0;
-    transform: scale(1.1);
-    filter: brightness(0.75) contrast(1.1);
-    transition: opacity 0.8s ease, transform 1.2s cubic-bezier(0.25, 1, 0.5, 1);
-  }
-  .portal-img.active {
-    opacity: 1;
-    transform: scale(1);
-  }
-
-  .orb {
-    position: absolute;
-    z-index: 3;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1rem;
-    color: #fff;
-    box-shadow: 0 0 20px currentColor;
-    animation: floatOrb 5s ease-in-out infinite alternate;
-  }
-  .orb-1 { width: 32px; height: 32px; top: 10%; right: -20px; background: #8b5cf6; color: #8b5cf6; }
-  .orb-2 { width: 25px; height: 25px; bottom: 20%; left: -25px; background: #3b82f6; color: #3b82f6; animation-delay: -2s;}
-  .orb-3 { width: 22px; height: 22px; bottom: -5px; right: 20%; background: var(--gold); color: var(--gold); animation-delay: -4s;}
-
-  @keyframes floatOrb {
-    0% { transform: translateY(0); }
-    100% { transform: translateY(-15px); }
-  }
-
-  /* =========================================
-     CARRUSEL DE TERAPIAS (solo mobile)
-     En escritorio .therapy-carousel es un wrapper invisible (display:
-     contents) para no alterar en nada el layout de scroll vertical
-     existente; toma forma de carrusel horizontal recién dentro del
-     media query de abajo. Los puntitos de progreso solo existen en mobile.
-     ========================================= */
-  .therapy-carousel { display: contents; }
-  .carousel-dots { display: none; }
-  .mobile-carousel-stage { display: contents; }
-
-  /* =========================================
-     SECCIÓN AGENDAR SESIÓN (WHATSAPP)
-     ========================================= */
-  .agenda-section {
-    position: relative;
-    z-index: 15;
-    scroll-margin-top: 90px;
-    padding: 110px 6vw;
-    text-align: center;
-    background: rgba(255, 250, 240, 0.5);
-    border-top: 1px solid rgba(201, 152, 47, 0.2);
-    border-bottom: 1px solid rgba(201, 152, 47, 0.2);
-    content-visibility: auto;
-    contain-intrinsic-size: auto 550px;
-  }
-
-  .agenda-badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    border: 1px dashed var(--gold-dim);
-    margin-bottom: 1.5rem;
-    font-size: 1.4rem;
-    color: var(--gold);
-    animation: orbitalSpin 30s linear infinite;
-  }
-  .agenda-badge span { display: inline-block; animation: orbitalSpin 30s linear infinite reverse; }
-
-  .agenda-section h2 {
-    font-family: var(--font-heading);
-    font-size: clamp(2.2rem, 4.5vw, 3rem);
-    font-weight: 700;
-    margin-bottom: 0.9rem;
-  }
-
-  .agenda-sub {
-    color: var(--text-muted);
-    max-width: 480px;
-    margin: 0 auto 0.75rem;
-    font-size: 1.05rem;
-    line-height: 1.6;
-  }
-
-  .natal-section .agenda-sub {
-    padding-top: 1.4rem;
-    margin-top: 0.5rem;
-    border-top: 1px solid rgba(201, 152, 47, 0.18);
-  }
-
-  .agenda-selected {
-    color: var(--gold);
-    font-size: 0.9rem;
-    letter-spacing: 0.03em;
-    min-height: 1.4em;
-    margin-bottom: 1.5rem;
-    opacity: 0;
-    transition: opacity 0.4s ease;
-  }
-  .agenda-selected.visible { opacity: 1; }
-
-  .whatsapp-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 1rem;
-    padding: 1.1rem 2.8rem;
-    border: none;
-    cursor: pointer;
-    font-family: var(--font-body);
-  }
-  .whatsapp-btn svg { width: 20px; height: 20px; flex-shrink: 0; }
-
-  .agenda-note {
-    margin-top: 1.5rem;
-    color: rgba(92, 109, 126, 0.8);
-    font-size: 0.85rem;
-  }
-
-  /* =========================================
-     CALCULADORA DE CARTA NATAL
-     ========================================= */
-  .natal-section {
-    position: relative;
-    z-index: 15;
-    padding: 100px 6vw;
-    text-align: center;
-    background: rgba(255, 250, 240, 0.4);
-    border-bottom: 1px solid rgba(201, 152, 47, 0.2);
-    content-visibility: auto;
-    contain-intrinsic-size: auto 950px;
-  }
-
-  .natal-form {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 1.1rem;
-    max-width: 640px;
-    margin: 2.2rem auto 0;
-  }
-
-  .natal-field {
-    display: flex;
-    flex-direction: column;
-    text-align: left;
-    gap: 0.4rem;
-    flex: 1 1 180px;
-  }
-  .natal-field-wide { flex: 1 1 100%; }
-
-  .natal-field label {
-    font-size: 0.85rem;
-    color: var(--text-muted);
-    letter-spacing: 0.02em;
-  }
-
-  .natal-field input {
-    font-family: var(--font-body);
-    font-size: 1rem;
-    padding: 0.75rem 1rem;
-    border-radius: 12px;
-    border: 1px solid var(--gold-dim);
-    background: rgba(255, 253, 248, 0.9);
-    color: var(--ink);
-    outline: none;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
-  }
-  .natal-field input:focus {
-    border-color: var(--gold);
-    box-shadow: 0 0 0 3px rgba(201, 152, 47, 0.15);
-  }
-
-  .natal-submit {
-    flex: 1 1 100%;
-    margin: 0.6rem auto 0;
-    border: none;
-  }
-
-  .natal-hint {
-    max-width: 480px;
-    margin: 1.2rem auto 0;
-    font-size: 0.85rem;
-    color: rgba(92, 109, 126, 0.8);
-    font-style: italic;
-  }
-
-  .natal-intro {
-    max-width: 560px;
-    margin: 0 auto 2.2rem;
-    font-size: 0.98rem;
-    line-height: 1.7;
-    color: var(--text-muted);
-  }
-
-  .natal-closing {
-    margin-top: 3rem;
-    padding-top: 2.4rem;
-    border-top: 1px solid rgba(201, 152, 47, 0.18);
-  }
-
-  .natal-closing-text {
-    max-width: 480px;
-    margin: 0 auto 1.3rem;
-    font-family: var(--font-heading);
-    font-style: italic;
-    font-size: 1.25rem;
-    color: var(--ink);
-  }
-
-  .natal-status {
-    min-height: 1.4em;
-    margin-top: 1rem;
-    color: var(--teal);
-    font-size: 0.9rem;
-  }
-  .natal-status.error { color: #b5533c; }
-
-  .natal-result {
-    display: none;
-    max-width: 900px;
-    margin: 2.5rem auto 0;
-    align-items: flex-start;
-    justify-content: center;
-    gap: 3rem;
-    flex-wrap: wrap;
-  }
-  .natal-result.visible { display: flex; }
-
-  .natal-wheel-wrap {
-    width: min(90vw, 420px);
-    aspect-ratio: 1/1;
-    flex-shrink: 0;
-  }
-  .natal-wheel-wrap svg { width: 100%; height: 100%; }
-
-  .natal-legend {
-    flex: 1 1 260px;
-    text-align: left;
-    max-width: 340px;
-  }
-  .natal-legend-item {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 0.75rem;
-    padding: 0.55rem 0;
-    border-bottom: 1px solid rgba(28, 49, 68, 0.08);
-    font-size: 0.95rem;
-  }
-  .natal-legend-item:last-child { border-bottom: none; }
-  .natal-legend-planet {
-    color: var(--ink);
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-  .natal-legend-planet .glyph {
-    color: var(--gold);
-    font-size: 1.1rem;
-    width: 1.2em;
-    text-align: center;
-  }
-  .natal-legend-detail {
-    color: var(--text-muted);
-    font-size: 0.88rem;
-    white-space: nowrap;
-  }
-  .natal-legend-heading {
-    font-family: var(--font-heading);
-    font-style: italic;
-    color: var(--teal);
-    margin-bottom: 0.6rem;
-    font-size: 1.1rem;
-  }
-
-  /* =========================================
-     TU CARTA DEL DÍA (TAROT · CARTA ÚNICA)
-     ========================================= */
-  .tarot-section {
-    position: relative;
-    z-index: 15;
-    padding: 100px 6vw;
-    text-align: center;
-    background: rgba(255, 250, 240, 0.35);
-    border-bottom: 1px solid rgba(201, 152, 47, 0.2);
-    content-visibility: auto;
-    contain-intrinsic-size: auto 850px;
-  }
-
-  .tarot-section h2 {
-    font-family: var(--font-heading);
-    font-size: clamp(2.2rem, 4.5vw, 3rem);
-    font-weight: 700;
-    margin-bottom: 0.9rem;
-  }
-
-  .tarot-stage {
-    margin-top: 2.5rem;
-  }
-
-  /* ---- Tirada de 3 cartas ---- */
-  .tarot-spread {
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    gap: clamp(0.8rem, 3vw, 2.2rem);
-    flex-wrap: wrap;
-  }
-
-  .tarot-slot {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.7rem;
-    width: min(26vw, 155px);
-  }
-
-  .tarot-position-label {
-    font-family: var(--font-heading);
-    font-style: italic;
-    color: var(--teal);
-    font-size: 0.85rem;
-    line-height: 1.25;
-    min-height: 2.4em;
-  }
-
-  .tarot-slot .tarot-card-single {
-    width: 100%;
-  }
-
-  @media (max-width: 480px) {
-    .tarot-spread { gap: 0.6rem; }
-    .tarot-slot { width: 28vw; }
-    .tarot-position-label { font-size: 0.72rem; }
-  }
-
-  /* ---- Carrusel en mobile: una carta grande al centro, dos espiando a
-     los costados. Se activa solo bajo este breakpoint — en desktop la
-     tirada sigue siendo la fila de 3 de siempre, sin cambios. ---- */
-  @media (max-width: 640px) {
-    .tarot-spread.tarot-spread--coverflow {
-      position: relative;
-      height: 360px;
-      display: block;
-      flex-wrap: nowrap;
-    }
-    .tarot-spread--coverflow .tarot-slot {
-      position: absolute;
-      top: 0;
-      left: 50%;
-      width: min(58vw, 190px);
-      transition: transform 0.5s cubic-bezier(0.4, 0.15, 0.2, 1), opacity 0.5s ease;
-      cursor: pointer;
-    }
-    .tarot-spread--coverflow .tarot-slot .tarot-card-single {
-      cursor: pointer;
-    }
-  }
-
-  .tarot-card-single {
-    position: relative;
-    width: min(62vw, 250px);
-    aspect-ratio: 5/8;
-    margin: 0 auto;
-    -webkit-perspective: 1400px;
-    perspective: 1400px;
-    border: none;
-    background: none;
-    padding: 0;
-    cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
-    touch-action: manipulation;
-    /* El drop-shadow va acá (afuera del elemento 3D) y no en
-       .tarot-card-inner: aplicar filter junto con transform-style:
-       preserve-3d en el MISMO elemento aplana el contexto 3D en varios
-       navegadores (sobre todo Safari/iOS), y el giro de la tarjeta deja de
-       funcionar como una vuelta real. */
-    filter: drop-shadow(0 14px 34px rgba(28, 49, 68, 0.28));
-  }
-  .tarot-card-single:focus-visible { outline: 2px solid var(--gold); outline-offset: 6px; border-radius: 14px; }
-  .tarot-card-single.tarot-revealed { cursor: default; }
-
-  .tarot-card-inner {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    -webkit-transform-style: preserve-3d;
-    transform-style: preserve-3d;
-    transition: -webkit-transform 1s cubic-bezier(0.4, 0.15, 0.2, 1), transform 1s cubic-bezier(0.4, 0.15, 0.2, 1);
-  }
-  .tarot-card-single.tarot-flipped .tarot-card-inner {
-    -webkit-transform: rotateY(180deg);
-    transform: rotateY(180deg);
-  }
-  .tarot-card-single:not(.tarot-revealed):hover .tarot-card-inner {
-    -webkit-transform: translateY(-6px);
-    transform: translateY(-6px);
-  }
-
-  .tarot-face {
-    position: absolute;
-    inset: 0;
-    backface-visibility: hidden;
-    -webkit-backface-visibility: hidden;
-    border-radius: 14px;
-    border: 1px solid var(--gold-dim);
-  }
-  /* El recorte (overflow + radio) va en un wrapper interno separado del
-     elemento que tiene backface-visibility. Ponerlos juntos en el mismo
-     elemento rompe el "ocultar cara trasera" en varios navegadores (sobre
-     todo mobile), dejando el dorso pisando al frente después de girar. */
-  .tarot-face-clip {
-    position: absolute;
-    inset: 0;
-    overflow: hidden;
-    border-radius: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .tarot-face-back .tarot-face-clip {
-    background:
-      repeating-linear-gradient(45deg, rgba(201,152,47,0.08) 0 8px, transparent 8px 16px),
-      linear-gradient(160deg, #23384c, var(--ink));
-  }
-  .tarot-face-back::before {
-    content: '✧';
-    color: var(--gold);
-    font-size: 2.2rem;
-    text-shadow: 0 0 14px rgba(201, 152, 47, 0.6);
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1;
-    pointer-events: none;
-  }
-  .tarot-face-back img {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .tarot-face-front {
-    -webkit-transform: rotateY(180deg);
-    transform: rotateY(180deg);
-  }
-  .tarot-face-front .tarot-face-clip {
-    background: linear-gradient(165deg, #fffaf0, #f3e8d3);
-    flex-direction: column;
-    padding: 10px;
-    gap: 4px;
-  }
-  /* Efecto de revelación: un brillo que cruza la carta + un pequeño "pop"
-     de escala, UNA sola vez al girar (no en loop). Solo anima
-     transform/opacity —lo procesa el GPU por composición, sin recalcular
-     layout ni repintar— así que el costo es mínimo incluso en celulares
-     viejos. Respeta prefers-reduced-motion más abajo. */
-  .tarot-face-front .tarot-face-clip::after {
-    content: '';
-    position: absolute;
-    inset: -20% -60%;
-    background: linear-gradient(100deg, transparent 42%, rgba(255,255,255,0.6) 50%, transparent 58%);
-    transform: translateX(-130%);
-    opacity: 0;
-    pointer-events: none;
-  }
-  .tarot-card-single.tarot-flipped .tarot-face-front .tarot-face-clip::after {
-    animation: tarotShine 0.8s ease-out 0.75s 1 both;
-  }
-  @keyframes tarotShine {
-    0% { transform: translateX(-130%); opacity: 0; }
-    18% { opacity: 1; }
-    100% { transform: translateX(130%); opacity: 0; }
-  }
-  .tarot-card-single.tarot-flipped .tarot-face-front .tarot-face-clip {
-    animation: tarotPop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) 0.75s 1 both;
-  }
-  @keyframes tarotPop {
-    0% { transform: scale(0.94); }
-    100% { transform: scale(1); }
-  }
-  .tarot-front-art {
-    width: 100%;
-    flex: 1;
-    border-radius: 8px;
-    border: 1px dashed var(--gold-dim);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--gold);
-    font-size: 2.4rem;
-    overflow: hidden;
-    transition: transform 0.4s ease;
-  }
-  .tarot-front-art img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    display: block;
-  }
-  .tarot-card-single.tarot-reversed .tarot-front-art { transform: rotate(180deg); }
-
-  .tarot-front-number {
-    font-family: var(--font-heading);
-    font-weight: 700;
-    color: var(--gold);
-    font-size: 1rem;
-  }
-  .tarot-front-name {
-    font-size: 0.85rem;
-    color: var(--ink);
-    text-align: center;
-    line-height: 1.2;
-  }
-  .tarot-front-orientation {
-    font-size: 0.68rem;
-    letter-spacing: 0.04em;
-    color: var(--teal);
-    text-transform: uppercase;
-  }
-
-  .tarot-hint {
-    margin-top: 1.4rem;
-    font-family: var(--font-heading);
-    font-style: italic;
-    color: var(--gold);
-    font-size: 1.1rem;
-  }
-
-  .tarot-status {
-    margin-top: 0.8rem;
-    font-size: 0.85rem;
-    color: rgba(92, 109, 126, 0.85);
-    min-height: 1.2em;
-  }
-  .tarot-status.error { color: #b5533c; }
-
-  .tarot-reading {
-    max-width: 620px;
-    margin: 2.4rem auto 0;
-    opacity: 0;
-    transform: translateY(16px);
-    transition: opacity 0.7s ease, transform 0.7s ease;
-    text-align: left;
-  }
-  .tarot-reading.visible { opacity: 1; transform: translateY(0); }
-  .tarot-reading[hidden] { display: none; }
-
-  .tarot-reading-card {
-    padding: 1.4rem 0;
-    border-bottom: 1px solid rgba(201, 152, 47, 0.18);
-  }
-  .tarot-reading-card:first-child { padding-top: 0; }
-  .tarot-reading-card:last-of-type { border-bottom: none; }
-
-  .tarot-reading-position {
-    font-family: var(--font-heading);
-    font-style: italic;
-    color: var(--teal);
-    font-size: 0.95rem;
-    margin-bottom: 0.4rem;
-  }
-
-  .tarot-reading-title {
-    font-family: var(--font-heading);
-    font-size: clamp(1.35rem, 3vw, 1.7rem);
-    color: var(--ink);
-    display: inline-block;
-    margin-right: 0.6rem;
-  }
-  .tarot-reading-orientation {
-    display: inline-block;
-    font-size: 0.68rem;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    color: var(--teal);
-    border: 1px solid var(--teal-dim);
-    border-radius: 50px;
-    padding: 1px 10px;
-    vertical-align: middle;
-  }
-  .tarot-reading-meaning {
-    color: var(--gold);
-    font-family: var(--font-heading);
-    font-style: italic;
-    font-size: 1.05rem;
-    margin: 0.5rem 0 0.5rem;
-  }
-  .tarot-reading-desc {
-    color: var(--text-muted);
-    font-size: 0.98rem;
-    line-height: 1.65;
-  }
-
-  .tarot-reading-synthesis {
-    margin-top: 1.6rem;
-    padding-top: 1.6rem;
-    border-top: 1px solid rgba(201, 152, 47, 0.3);
-    text-align: center;
-  }
-  .tarot-reading-synthesis-label {
-    font-size: 0.75rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: rgba(92, 109, 126, 0.75);
-    margin-bottom: 0.5rem;
-  }
-  .tarot-reading-synthesis-text {
-    font-family: var(--font-heading);
-    font-style: italic;
-    font-size: 1.15rem;
-    color: var(--ink);
-    line-height: 1.5;
-  }
-
-  .tarot-next {
-    display: block;
-    text-align: center;
-    margin-top: 1.6rem;
-    font-size: 0.85rem;
-    color: rgba(92, 109, 126, 0.8);
-  }
-
-  @media (max-width: 640px) {
-    .tarot-section { padding: 70px 6vw; }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .tarot-card-inner, .tarot-reading, .tarot-front-art {
-      transition-duration: 0.25s !important;
-    }
-    .tarot-face-front .tarot-face-clip,
-    .tarot-face-front .tarot-face-clip::after {
-      animation: none !important;
-    }
-  }
-
-  /* =========================================
-     FOOTER CÓSMICO ELEGANTE Y LIVIANO
-     (.site-footer base está en estilos.css)
-     ========================================= */
-  .footer-content {
-    max-width: 1200px;
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 40px;
-    margin-bottom: 40px;
-  }
-
-  .footer-col h3 {
-    font-family: var(--font-heading);
-    color: var(--text-main);
-    font-size: 1.3rem;
-    margin-bottom: 1rem;
-    letter-spacing: 0.05em;
-  }
-
-  .footer-col p {
-    font-size: 0.95rem;
-    line-height: 1.6;
-    margin-bottom: 1rem;
-  }
-
-  .footer-links {
-    list-style: none;
-  }
-
-  .footer-links li {
-    margin-bottom: 0.75rem;
-  }
-
-  .footer-links a {
-    color: var(--text-muted);
-    text-decoration: none;
-    font-size: 0.95rem;
-    transition: color 0.3s ease;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .footer-links a:hover {
-    color: var(--gold);
-  }
-
-  .footer-bottom {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding-top: 25px;
-    border-top: 1px solid rgba(28, 49, 68, 0.08);
-    text-align: center;
-    font-size: 0.85rem;
-    color: rgba(92, 109, 126, 0.75);
-  }
-
-  @media (max-width: 960px) {
-    .scroll-container { flex-direction: column; padding: 0; }
-
-    /* .text-col pasa a ser un wrapper invisible: sus hijos directos
-       (hero-block y el "stage" del carrusel) se "promueven" a flex items
-       directos de .scroll-container — así los podemos ordenar con
-       `order` sin tocar el HTML ni el JS de desktop. */
-    .text-col { display: contents; }
-
-    .hero-block {
-      order: 1;
-      padding: 12vh 8vw 4vh;
-      text-align: center;
-      min-height: auto;
-    }
-    .hero-block .item-photo {
-      display: block;
-      width: min(60vw, 260px);
-      aspect-ratio: 1 / 1;
-      object-fit: cover;
-      border-radius: 50%;
-      margin: 0 auto 1.5rem;
-      border: 1px solid var(--gold-dim);
-      box-shadow: 0 10px 35px rgba(28, 49, 68, 0.2), 0 0 20px var(--gold-dim);
-      filter: brightness(0.95) contrast(1.05);
-    }
-
-    /* "Stage" del carrusel: agrupa portal + tarjeta + puntitos en un
-       único bloque de una pantalla completa (100dvh), centrado
-       verticalmente, para que entre todo sin necesitar scroll extra. El
-       portal físicamente se reubica acá adentro por JS (ver script),
-       solo mientras estamos en este ancho — en escritorio nunca se
-       mueve y sigue siendo la columna sticky de siempre. */
-    .mobile-carousel-stage {
-      order: 2;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      width: 100%;
-      min-height: 100vh;
-      min-height: 100dvh;
-      box-sizing: border-box;
-      padding: 2rem 0;
-    }
-
-    /* El portal circular queda fijo arriba de la tarjeta: no se mueve al
-       deslizar, solo cambia la imagen de adentro (ver JS, reutiliza la
-       misma activateSection() que en desktop). */
-    .visual-col {
-      display: flex;
-      position: static;
-      width: 100%;
-      height: auto;
-      flex: 0 0 auto;
-      padding: 0 0 0.75rem;
-    }
-    .portal-frame { width: min(40vw, 165px); }
-
-    /* Carrusel horizontal de terapias con scroll-snap: una tarjeta por
-       pantalla; se desliza en vez de scrollear verticalmente. */
-    .therapy-carousel {
-      display: flex;
-      overflow-x: auto;
-      scroll-snap-type: x mandatory;
-      -webkit-overflow-scrolling: touch;
-      scrollbar-width: none;
-      width: 100%;
-      flex: 0 0 auto;
-    }
-    .therapy-carousel::-webkit-scrollbar { display: none; }
-
-    .therapy-item {
-      flex: 0 0 100%;
-      width: 100%;
-      box-sizing: border-box;
-      scroll-snap-align: center;
-      min-height: 0;
-      opacity: 1;
-      padding: 0.25rem 8vw 0.5rem;
-      align-items: center;
-      text-align: center;
-    }
-    /* La tarjeta ya no necesita el fade-up de scroll vertical: aparece
-       completa apenas se desliza hasta el centro del carrusel */
-    .therapy-item h2, .therapy-item p, .therapy-item .btn,
-    .therapy-item .therapy-benefits li {
-      opacity: 1;
-      transform: none;
-      transition: none;
-    }
-
-    .therapy-item h2 { font-size: clamp(1.5rem, 6.5vw, 1.9rem); margin-bottom: 0.5rem; line-height: 1.15; }
-    .therapy-item p { max-width: 100%; font-size: 0.88rem; line-height: 1.45; margin-bottom: 0.75rem; }
-    .therapy-benefits { max-width: 100%; text-align: left; margin-bottom: 1rem; }
-    .therapy-benefits li { font-size: 0.85rem; line-height: 1.3; margin-bottom: 0.4rem; padding-left: 1.25rem; }
-    .btn { margin: 0 auto; padding: 0.75rem 2rem; font-size: 0.82rem; }
-
-    /* La foto circular chica de cada terapia ya no hace falta: ahora
-       esa imagen se muestra dentro del portal fijo de arriba */
-    .therapy-item .item-photo { display: none; }
-
-    /* Puntitos de progreso del carrusel */
-    .carousel-dots {
-      display: flex;
-      justify-content: center;
-      gap: 8px;
-      padding-top: 0.5rem;
-      width: 100%;
-      flex: 0 0 auto;
-    }
-    .carousel-dots .dot {
-      width: 8px; height: 8px;
-      border-radius: 50%;
-      border: none;
-      padding: 0;
-      background: var(--gold-dim);
-      opacity: 0.5;
-      transition: opacity 0.3s ease, transform 0.3s ease, background 0.3s ease;
-    }
-    .carousel-dots .dot.active {
-      opacity: 1;
-      background: var(--gold);
-      transform: scale(1.3);
-    }
-
-    .music-player { bottom: 15px; right: 15px; padding: 8px 14px; }
-    .music-info { max-width: 130px; }
-    .site-footer { padding: 40px 6vw 30px; text-align: center; }
-    .footer-col { display: flex; flex-direction: column; align-items: center; }
-
-    .natal-section { padding: 70px 6vw; }
-    .natal-result { flex-direction: column; align-items: center; gap: 2rem; }
-    .natal-legend { max-width: 100%; }
-  }
-
-  /* =========================================
-     OPTIMIZACIÓN PARA MÓVILES DE GAMA BAJA
-     Se recortan las animaciones decorativas más numerosas y menos
-     notorias (muchos elementos chiquitos animando a la vez es lo que más
-     castiga a un GPU de gama baja). Se conservan las animaciones "de
-     marca" del sitio: el shimmer del logo, el zodiaco flotante, los
-     anillos/orbes del portal y su "respiración", y el giro de las
-     insignias — son pocas, grandes y le dan identidad visual al sitio.
-     ========================================= */
-  @media (max-width: 960px) {
-    .twinkle-star {
-      animation: none;
-      opacity: 0.3;
-    }
-    .constellation-svg .const-a line,
-    .constellation-svg .const-b line {
-      animation: none;
-      opacity: 0.25;
-    }
-    .cross-flare {
-      animation: none;
-      opacity: 0.5;
-      filter: none;
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .twinkle-star,
-    .shooting-star,
-    .cross-flare,
-    .zodiac-bg,
-    .mystic-particle,
-    .stars-layer-1,
-    .stars-layer-2,
-    .orbital-ring,
-    .orbital-ring-outer,
-    .orb,
-    .portal-frame,
-    .constellation-svg .const-a line,
-    .constellation-svg .const-b line {
-      animation: none !important;
-    }
-    * {
-      transition-duration: 0.01ms !important;
-      scroll-behavior: auto !important;
-    }
-  }
-
-  @media (max-width: 420px) {
-    .music-info { display: none; }
-    .music-player { gap: 0; padding: 10px; }
-  }
-
-/* Estilo para el botón del Header en el index */
-    .nav-sobre-mi-btn {
-      position: absolute;
-      right: 25px;
-      font-family: var(--font-body);
-      font-size: 0.85rem;
-      font-weight: 500;
-      text-decoration: none;
-      color: var(--text-main);
-      padding: 6px 16px;
-      border-radius: 50px;
-      border: 1px solid var(--gold-dim);
-      background: rgba(255, 250, 240, 0.6);
-      backdrop-filter: blur(8px);
-      transition: all 0.3s ease;
-    }
-    .nav-sobre-mi-btn:hover {
-      color: var(--gold);
-      border-color: var(--gold);
-      transform: translateY(-1px);
-      box-shadow: 0 0 10px rgba(201, 152, 47, 0.2);
-    }
-  </style>
-</head>
-<body>
-
-  <!-- HEADER FIJO CON EL NOMBRE DEL EMPRENDIMIENTO -->
- <header class="site-header">
-   <h1 class="brand-title" data-text="Alquimia Sagrada">
-  Alquimia Sagrada
-</h1>
-    <a href="sobre-mi.html" class="nav-sobre-mi-btn">
-  <span class="btn-icon">👤</span> 
-  <span class="btn-text">Perfil profesional</span>
-</a>
-  </header>
-
-  <div class="cosmic-bg" id="main-bg"></div>
-
-  <div class="parallax-layer" id="parallax-1"><div class="stars-layer-1"></div></div>
-  <div class="parallax-layer" id="parallax-2"><div class="stars-layer-2"></div></div>
-
-  <!-- Líneas de constelación (SVG liviano) -->
-  <svg class="constellation-svg" viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid slice">
-    <g class="const-a">
-      <line x1="120" y1="180" x2="240" y2="120" />
-      <line x1="240" y1="120" x2="360" y2="210" />
-      <line x1="360" y1="210" x2="330" y2="330" />
-      <circle cx="120" cy="180" r="2.2" />
-      <circle cx="240" cy="120" r="2.2" />
-      <circle cx="360" cy="210" r="2.2" />
-      <circle cx="330" cy="330" r="2.2" />
-    </g>
-    <g class="const-b">
-      <line x1="760" y1="700" x2="860" y2="640" />
-      <line x1="860" y1="640" x2="920" y2="760" />
-      <line x1="760" y1="700" x2="700" y2="820" />
-      <circle cx="760" cy="700" r="2.2" />
-      <circle cx="860" cy="640" r="2.2" />
-      <circle cx="920" cy="760" r="2.2" />
-      <circle cx="700" cy="820" r="2.2" />
-    </g>
-    <g class="const-a">
-      <line x1="820" y1="140" x2="900" y2="220" />
-      <line x1="900" y1="220" x2="860" y2="320" />
-      <circle cx="820" cy="140" r="2" />
-      <circle cx="900" cy="220" r="2" />
-      <circle cx="860" cy="320" r="2" />
-    </g>
-    <g class="const-b">
-      <line x1="90" y1="750" x2="180" y2="800" />
-      <line x1="180" y1="800" x2="150" y2="900" />
-      <circle cx="90" cy="750" r="2" />
-      <circle cx="180" cy="800" r="2" />
-      <circle cx="150" cy="900" r="2" />
-    </g>
-  </svg>
-
-  <!-- Estrellas con parpadeo (twinkle) aleatorio -->
-  <div class="twinkle-star tw-1"></div>
-  <div class="twinkle-star tw-2 gold"></div>
-  <div class="twinkle-star tw-3"></div>
-  <div class="twinkle-star tw-4 gold"></div>
-  <div class="twinkle-star tw-5"></div>
-  <div class="twinkle-star tw-6 gold"></div>
-  <div class="twinkle-star tw-7"></div>
-  <div class="twinkle-star tw-8"></div>
-
-  <div class="shooting-star ss-1"></div>
-  <div class="shooting-star ss-2"></div>
-  <div class="shooting-star ss-3"></div>
-
-  <div class="mystic-particle mp-1"></div>
-  <div class="mystic-particle mp-2"></div>
-  <div class="mystic-particle mp-3"></div>
-
-  <div class="zodiac-bg z-1">♈</div>
-  <div class="zodiac-bg z-2">♓</div>
-  <div class="zodiac-bg z-3">♋</div>
-  <div class="zodiac-bg z-4">♒</div>
-
-  <div class="cross-flare cf-1"></div>
-  <div class="cross-flare cf-2"></div>
-  <div class="cross-flare cf-3"></div>
-  <div class="cross-flare cf-4"></div>
-  <div class="cross-flare cf-5"></div>
-
-  <div class="grain-overlay"></div>
-
-  <!-- SECCIÓN INTRODUCTORIA TYPEWRITER -->
-  <!-- REPRODUCTOR FLOTANTE (AUDIO NATIVO HTML5) -->
-  <div class="music-player" id="musicPlayerContainer">
-    <button class="play-btn" id="playBtn" onclick="togglePlay()">
-      <span class="play-icon" id="playIcon">▶</span>
-    </button>
-    <div class="music-info">
-      <span class="music-title">Frecuencia Cósmica 432Hz</span>
-      <span class="music-subtitle">Música de Meditación</span>
-    </div>
-    <div class="eq-bars" id="eqBars">
-      <div class="eq-bar dynamic-eq"></div>
-      <div class="eq-bar dynamic-eq"></div>
-      <div class="eq-bar dynamic-eq"></div>
-    </div>
-  </div>
-
-  <!-- Elemento de audio HTML5 directo -->
-  <audio id="bg-audio" loop preload="none">
-    <source src="meditacion.mp3" type="audio/mpeg">
-  </audio>
-
-  <main class="scroll-container">
-    
-    <div class="text-col">
-
-      <div class="hero-block">
-        <img class="item-photo" src="assets/img/logo-alquimia.jpg" alt="Alquimia Sagrada" loading="lazy" decoding="async">
-        <div class="typewriter-container">
-          <span id="typewriter-text"></span><span class="cursor-blink"></span>
-        </div>
-        <p class="brand-tagline">El amor ordena, el alma florece.</p>
-      </div>
-
-      <div class="mobile-carousel-stage" id="mobileCarouselStage">
-
-      <div class="therapy-carousel" id="therapyCarousel">
-
-      <div class="therapy-item" data-index="0" data-color="#4ade80" data-accent="#4ade80">
-        <img class="item-photo" src="https://i0.wp.com/familyconstellationseurope.com/wp-content/uploads/2025/01/Untitled.jpeg?fit=800%2C800&ssl=1" alt="Constelaciones Familiares" loading="lazy" decoding="async">
-        <h2>Constelaciones Familiares</h2>
-        <p>Un método sistémico que revela los vínculos invisibles entre generaciones. Como estrellas de un mismo cúmulo, cada miembro de la familia ocupa un lugar y una fuerza que, al ordenarse, libera al sistema entero.</p>
-        <ul class="therapy-benefits">
-          <li>Libera lealtades familiares inconscientes</li>
-          <li>Restaura el orden y la pertenencia</li>
-          <li>Sana patrones heredados repetitivos</li>
-        </ul>
-        <a href="#agendar" class="btn">Agendar Sesión</a>
-      </div>
-
-      <div class="therapy-item" data-index="1" data-color="#facc15" data-accent="#facc15">
-        <img class="item-photo" src="https://images.unsplash.com/photo-1519834785169-98be25ec3f84?auto=format&fit=crop&q=80&w=800" alt="Reiki" loading="lazy" decoding="async">
-        <h2>Reiki</h2>
-        <p>Canalización de energía universal a través de las manos para equilibrar el cuerpo, la mente y el espíritu. Una corriente sutil que disuelve bloqueos y devuelve la vitalidad a cada capa del ser.</p>
-        <ul class="therapy-benefits">
-          <li>Reduce el estrés y la ansiedad</li>
-          <li>Equilibra los centros energéticos</li>
-          <li>Favorece la relajación profunda</li>
-        </ul>
-        <a href="#agendar" class="btn">Agendar Sesión</a>
-      </div>
-
-      <div class="therapy-item" data-index="2" data-color="#38bdf8" data-accent="#38bdf8">
-        <img class="item-photo" src="https://images.unsplash.com/photo-1499209974431-9dddcece7f88?auto=format&fit=crop&q=80&w=800" alt="Barras de Access" loading="lazy" decoding="async">
-        <h2>Barras de Access</h2>
-        <p>Treinta y dos puntos sobre la cabeza que, al ser tocados suavemente, disuelven creencias limitantes acumuladas durante toda una vida. Una técnica precisa como un mapa estelar, dirigida al cambio real.</p>
-        <ul class="therapy-benefits">
-          <li>Libera creencias y patrones mentales</li>
-          <li>Amplía la claridad y la posibilidad</li>
-          <li>Efecto notable desde la primera sesión</li>
-        </ul>
-        <a href="#agendar" class="btn">Agendar Sesión</a>
-      </div>
-
-      <div class="therapy-item" data-index="3" data-color="#e879f9" data-accent="#e879f9">
-        <img class="item-photo" src="https://images.unsplash.com/photo-1532012197267-da84d127e765?auto=format&fit=crop&q=80&w=800" alt="Registros Akáshicos" loading="lazy" decoding="async">
-        <h2>Registros Akáshicos</h2>
-        <p>El archivo etérico donde queda inscrita cada experiencia del alma a través del tiempo. Consultarlo es abrir un libro cuyas páginas se despliegan en constelaciones de respuestas y propósito.</p>
-        <ul class="therapy-benefits">
-          <li>Claridad sobre el propósito de vida</li>
-          <li>Comprensión de patrones kármicos</li>
-          <li>Guía para decisiones importantes</li>
-        </ul>
-        <a href="#agendar" class="btn">Agendar Sesión</a>
-      </div>
-
-      <div class="therapy-item" data-index="4" data-color="#fb7185" data-accent="#fb7185">
-        <img class="item-photo" src="https://images.unsplash.com/photo-1544161515-4ab6ce6db874?auto=format&fit=crop&q=80&w=800" alt="Masajes Holísticos" loading="lazy" decoding="async">
-        <h2>Masajes Holísticos</h2>
-        <p>Manos que leen el cuerpo como un territorio propio, liberando tensión acumulada capa tras capa. Un trabajo que integra técnica y presencia para devolver al cuerpo su estado natural de calma.</p>
-        <ul class="therapy-benefits">
-          <li>Alivia tensión muscular profunda</li>
-          <li>Mejora la circulación y el descanso</li>
-          <li>Reconecta cuerpo y mente</li>
-        </ul>
-        <a href="#agendar" class="btn">Agendar Sesión</a>
-      </div>
-
-      <div class="therapy-item" data-index="5" data-color="#818cf8" data-accent="#818cf8">
-        <img class="item-photo" src="https://images.unsplash.com/photo-1519415510236-718bdfcd89c8?auto=format&fit=crop&q=80&w=800" alt="Reflexología" loading="lazy" decoding="async">
-        <h2>Reflexología</h2>
-        <p>Cada punto de la planta del pie es una puerta hacia un órgano o sistema del cuerpo. Presionar con precisión estos puntos es activar un mapa completo de bienestar, trazado como una constelación.</p>
-        <ul class="therapy-benefits">
-          <li>Estimula el equilibrio de órganos internos</li>
-          <li>Mejora la circulación en extremidades</li>
-          <li>Induce un descanso profundo</li>
-        </ul>
-        <a href="#agendar" class="btn">Agendar Sesión</a>
-      </div>
-
-      <div class="therapy-item" data-index="6" data-color="#34d399" data-accent="#34d399">
-        <img class="item-photo" src="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&q=80&w=800" alt="Senderismo Holístico" loading="lazy" decoding="async">
-        <h2>Senderismo Holístico</h2>
-        <p>Caminatas conscientes en la naturaleza que combinan respiración, silencio y movimiento. Un sendero físico que, paso a paso, se convierte también en un camino interior bajo un cielo abierto.</p>
-        <ul class="therapy-benefits">
-          <li>Reduce el ruido mental y el estrés</li>
-          <li>Fortalece cuerpo y sistema respiratorio</li>
-          <li>Reconecta con los ciclos naturales</li>
-        </ul>
-        <a href="#agendar" class="btn">Agendar Sesión</a>
-      </div>
-
-      </div>
-
-      <div class="carousel-dots" id="therapyDots">
-        <button type="button" class="dot" data-index="0" aria-label="Ir a Constelaciones Familiares"></button>
-        <button type="button" class="dot" data-index="1" aria-label="Ir a Reiki"></button>
-        <button type="button" class="dot" data-index="2" aria-label="Ir a Barras de Access"></button>
-        <button type="button" class="dot" data-index="3" aria-label="Ir a Registros Akáshicos"></button>
-        <button type="button" class="dot" data-index="4" aria-label="Ir a Masajes Holísticos"></button>
-        <button type="button" class="dot" data-index="5" aria-label="Ir a Reflexología"></button>
-        <button type="button" class="dot" data-index="6" aria-label="Ir a Senderismo Holístico"></button>
-      </div>
-
-      </div>
-
-    </div>
-
-    <div class="visual-col">
-      <div class="portal-frame">
-        <div class="orbital-ring"></div>
-        <div class="orbital-ring-outer"></div>
-        <div class="orb orb-1">♄</div>
-        <div class="orb orb-2">☾</div>
-        <div class="orb orb-3"></div>
-
-        <div class="portal-image-container">
-          <img src="assets/img/logo-alquimia.jpg" alt="Alquimia Sagrada" class="portal-img active" id="img-logo" fetchpriority="high" decoding="async">
-          <img src="https://i0.wp.com/familyconstellationseurope.com/wp-content/uploads/2025/01/Untitled.jpeg?fit=800%2C800&ssl=1" alt="Constelaciones Familiares" class="portal-img" id="img-0" loading="lazy" decoding="async">
-          <img src="https://images.unsplash.com/photo-1519834785169-98be25ec3f84?auto=format&fit=crop&q=80&w=800" alt="Reiki" class="portal-img" id="img-1" loading="lazy" decoding="async">
-          <img src="https://images.unsplash.com/photo-1499209974431-9dddcece7f88?auto=format&fit=crop&q=80&w=800" alt="Barras de Access" class="portal-img" id="img-2" loading="lazy" decoding="async">
-          <img src="https://images.unsplash.com/photo-1532012197267-da84d127e765?auto=format&fit=crop&q=80&w=800" alt="Registros Akáshicos" class="portal-img" id="img-3" loading="lazy" decoding="async">
-          <img src="https://images.unsplash.com/photo-1544161515-4ab6ce6db874?auto=format&fit=crop&q=80&w=800" alt="Masajes Holísticos" class="portal-img" id="img-4" loading="lazy" decoding="async">
-          <img src="https://images.unsplash.com/photo-1519415510236-718bdfcd89c8?auto=format&fit=crop&q=80&w=800" alt="Reflexología" class="portal-img" id="img-5" loading="lazy" decoding="async">
-          <img src="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&q=80&w=800" alt="Senderismo Holístico" class="portal-img" id="img-6" loading="lazy" decoding="async">
-        </div>
-      </div>
-    </div>
-
-  </main>
-
-  <!-- TU CARTA DEL DÍA (TAROT · TIRADA DE 3) -->
-  <section id="carta-del-dia" class="tarot-section">
-    <div class="agenda-badge"><span>✦</span></div>
-    <h2>Tu Lectura del Día</h2>
-    <p class="agenda-sub">Concentrate un instante y tocá cualquier carta para revelar el mensaje que el universo tiene para vos hoy: Llevá tu atención a una pregunta puntual, tocá una carta y descubrí cómo tu pasado, presente y futuro se conectan para darte la respuesta que necesitás hoy.</p>
-
-    <div class="tarot-stage" id="tarot-stage">
-      <div class="tarot-spread" id="tarot-spread"></div>
-
-      <p class="tarot-hint" id="tarot-hint">Tocá las cartas para revelarlas</p>
-      <p class="tarot-status" id="tarot-status"></p>
-
-      <div class="tarot-reading" id="tarot-reading" hidden></div>
-    </div>
-  </section>
-
-  <!-- CALCULADORA DE CARTA NATAL -->
-  <section id="carta-natal" class="natal-section">
-    <div class="agenda-badge"><span>✦</span></div>
-    <h2>Tu Carta Natal</h2>
-    <p class="natal-intro">Conocer las posiciones de tus astros aporta claridad objetiva sobre tus tendencias y desafíos. El trabajo clínico y terapéutico posterior es el que facilita transformar esa información en herramientas prácticas para tu bienestar.</p>
-
-    <p class="agenda-sub">Ingresá tu fecha, hora y lugar de nacimiento para ver el mapa del cielo en el momento en que naciste: tus planetas, tus signos y tus casas.</p>
-
-    <form class="natal-form" id="natal-form">
-      <div class="natal-field">
-        <label for="natal-date">Fecha de nacimiento</label>
-        <input type="date" id="natal-date" required>
-      </div>
-      <div class="natal-field">
-        <label for="natal-time">Hora de nacimiento</label>
-        <input type="time" id="natal-time" required>
-      </div>
-      <div class="natal-field natal-field-wide">
-        <label for="natal-place">Ciudad de nacimiento</label>
-        <input type="text" id="natal-place" placeholder="Ej: Villa María, Argentina" required>
-      </div>
-      <button type="submit" class="btn natal-submit" id="natal-submit">Calcular mi Carta Natal</button>
-    </form>
-
-    <p class="natal-hint">¿No sabés la hora exacta? Usá 12:00 como aproximación — el Ascendente y las casas pueden variar, pero los planetas se mantienen certeros.</p>
-
-    <p class="natal-status" id="natal-status"></p>
-
-    <div class="natal-result" id="natal-result">
-      <div class="natal-wheel-wrap" id="natal-wheel-wrap"></div>
-      <div class="natal-legend" id="natal-legend"></div>
-    </div>
-
-    <div class="natal-closing">
-      <p class="natal-closing-text">¿Querés profundizar en lo que revelan tus astros? Agendá una lectura personalizada.</p>
-      <a
-        href="https://wa.me/5493535654858?text=Hola!%20Vi%20mi%20carta%20natal%20en%20la%20web%20y%20quiero%20agendar%20una%20lectura%20personalizada."
-        target="_blank"
-        rel="noopener"
-        class="btn whatsapp-btn"
-        id="natal-whatsapp-cta"
-      >
-        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-          <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.46 1.32 4.96L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.21h.01c5.46 0 9.9-4.45 9.9-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2zm0 1.67c2.2 0 4.26.86 5.82 2.42a8.2 8.2 0 0 1 2.41 5.82c0 4.54-3.7 8.24-8.24 8.24a8.2 8.2 0 0 1-4.19-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.18 8.18 0 0 1-1.26-4.4c0-4.54 3.7-8.22 8.25-8.22zm-4.53 4.71c-.16 0-.42.06-.64.3-.22.24-.85.83-.85 2.03 0 1.2.87 2.35.99 2.51.12.16 1.7 2.6 4.12 3.64.58.25 1.03.4 1.38.51.58.18 1.11.16 1.53.1.47-.07 1.44-.59 1.64-1.16.2-.57.2-1.06.14-1.16-.06-.1-.22-.16-.46-.28-.24-.12-1.44-.71-1.66-.79-.22-.08-.38-.12-.55.12-.16.24-.63.79-.77.95-.14.16-.28.18-.52.06-.24-.12-1.02-.38-1.94-1.2-.72-.64-1.2-1.43-1.34-1.67-.14-.24-.02-.37.1-.49.11-.11.24-.28.36-.42.12-.14.16-.24.24-.4.08-.16.04-.3-.02-.42-.06-.12-.55-1.34-.76-1.83-.2-.48-.4-.42-.55-.42h-.14z"/>
-        </svg>
-        <span>💬 Consultar por WhatsApp</span>
-      </a>
-    </div>
-  </section>
-
-  <!-- SECCIÓN AGENDAR SESIÓN (WHATSAPP) -->
-  <section id="agendar" class="agenda-section">
-    <div class="agenda-badge"><span>✦</span></div>
-    <h2>Agendá tu Sesión</h2>
-    <p class="agenda-sub">Escribime directamente por WhatsApp y coordinamos juntxs el día y horario que mejor te quede.</p>
-    <p class="agenda-selected" id="agenda-selected"></p>
-    <a href="https://wa.me/5493535654858" target="_blank" rel="noopener" class="btn whatsapp-btn" id="whatsapp-cta">
-      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-        <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.46 1.32 4.96L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.21h.01c5.46 0 9.9-4.45 9.9-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2zm0 1.67c2.2 0 4.26.86 5.82 2.42a8.2 8.2 0 0 1 2.41 5.82c0 4.54-3.7 8.24-8.24 8.24a8.2 8.2 0 0 1-4.19-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.18 8.18 0 0 1-1.26-4.4c0-4.54 3.7-8.22 8.25-8.22zm-4.53 4.71c-.16 0-.42.06-.64.3-.22.24-.85.83-.85 2.03 0 1.2.87 2.35.99 2.51.12.16 1.7 2.6 4.12 3.64.58.25 1.03.4 1.38.51.58.18 1.11.16 1.53.1.47-.07 1.44-.59 1.64-1.16.2-.57.2-1.06.14-1.16-.06-.1-.22-.16-.46-.28-.24-.12-1.44-.71-1.66-.79-.22-.08-.38-.12-.55.12-.16.24-.63.79-.77.95-.14.16-.28.18-.52.06-.24-.12-1.02-.38-1.94-1.2-.72-.64-1.2-1.43-1.34-1.67-.14-.24-.02-.37.1-.49.11-.11.24-.28.36-.42.12-.14.16-.24.24-.4.08-.16.04-.3-.02-.42-.06-.12-.55-1.34-.76-1.83-.2-.48-.4-.42-.55-.42h-.14z"/>
-      </svg>
-      <span id="whatsapp-cta-label">¡Quiero agendar una sesión!</span>
-    </a>
-    <p class="agenda-note">Te responderé a la brevedad para confirmar tu sesión.</p>
-  </section>
-
-
-
-  <!-- FOOTER -->
-  <footer class="site-footer">
-    <div class="footer-content">
-      <div class="footer-col">
-        <h3>Alquimia Sagrada</h3>
-        <p>Espacio de sanación y evolución consciente. Un puente entre la energía sutil y tu bienestar integral bajo la guía del universo.</p>
-      </div>
-      <div class="footer-col">
-        <h3>Contacto</h3>
-        <ul class="footer-links">
-          <li><a href="https://wa.me/5493535654858" target="_blank">📞 3535654858</a></li>
-          <li><a href="mailto:ivanalorelamberti@gmail.com">✉️ ivanalorelamberti@gmail.com</a></li>
-          <li><a href="#">📍 Villa María, Cba.</a></li>
-        </ul>
-      </div>
-      <div class="footer-col">
-        <h3>Redes</h3>
-        <ul class="footer-links">
-          <li><a href="https://instagram.com/alquimia.sagrada.vm" target="_blank">✨ Instagram: @alquimia.sagrada.vm</a></li>
-        </ul>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <p>&copy; 2026 Alquimia Sagrada &middot; Todos los derechos reservados.</p>
-    </div>
-  </footer>
-
-  <script>
-    // Bloqueo del clic derecho, del arrastre de imágenes y de los atajos de
-    // teclado más comunes para abrir las herramientas de desarrollador.
-    document.addEventListener('contextmenu', (e) => e.preventDefault());
-    document.addEventListener('dragstart', (e) => e.preventDefault());
-    document.addEventListener('selectstart', (e) => {
-      const tag = e.target.tagName;
-      if (tag !== 'INPUT' && tag !== 'TEXTAREA') e.preventDefault();
-    });
-    document.addEventListener('keydown', (e) => {
-      const key = e.key;
-      const blocked =
-        key === 'F12' ||
-        (e.ctrlKey && e.shiftKey && ['I', 'i', 'J', 'j', 'C', 'c'].includes(key)) ||
-        (e.metaKey && e.altKey && ['I', 'i', 'J', 'j', 'C', 'c'].includes(key)) ||
-        (e.ctrlKey && ['U', 'u'].includes(key)) ||
-        (e.metaKey && ['U', 'u'].includes(key));
-      if (blocked) e.preventDefault();
-    });
-  </script>
-
-  <!-- GSAP & ScrollTrigger (cargados acá, al final, para no bloquear el
-       primer renderizado de la página con conexiones lentas en mobile) -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-
-  <!-- Calculadora de Carta Natal: astronomía, zona horaria histórica y fechas.
-       Las librerías (pesadas) se cargan bajo demanda más abajo, recién
-       cuando la sección #carta-natal entra en pantalla — no todas las
-       visitas llegan a usarla. -->
-
-  <script>
-  // =========================================
-  // CARGA DIFERIDA DE LAS LIBRERÍAS DE CARTA NATAL
-  // Son 3 librerías pesadas que la mayoría de las visitas nunca llega a
-  // necesitar. Se piden recién cuando la sección entra en pantalla (con
-  // margen de anticipación, para que ya estén listas cuando el usuario
-  // termine de completar el formulario), o como red de seguridad justo
-  // antes de calcular la carta si por algún motivo todavía no cargaron.
-  (function () {
-    let natalLibsPromise = null;
-
-    window.loadNatalLibraries = function () {
-      if (natalLibsPromise) return natalLibsPromise;
-      const urls = [
-        'https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.browser.min.js',
-        'https://cdn.jsdelivr.net/npm/tz-lookup@6.1.25/tz.js',
-        'https://cdn.jsdelivr.net/npm/luxon@3.7.2/build/global/luxon.min.js'
-      ];
-      natalLibsPromise = Promise.all(urls.map(src => new Promise((resolve, reject) => {
-        const s = document.createElement('script');
-        s.src = src;
-        s.onload = resolve;
-        s.onerror = () => reject(new Error('No se pudo cargar ' + src));
-        document.body.appendChild(s);
-      })));
-      return natalLibsPromise;
-    };
-
-    const natalSection = document.getElementById('carta-natal');
-    if (natalSection && 'IntersectionObserver' in window) {
-      const natalObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            window.loadNatalLibraries();
-            natalObserver.unobserve(entry.target);
-          }
-        });
-      }, { rootMargin: '600px 0px' });
-      natalObserver.observe(natalSection);
-    } else if (natalSection) {
-      // Navegadores sin soporte de IntersectionObserver: cargamos directo.
-      window.loadNatalLibraries();
-    }
-  })();
-  </script>
-
-  <script>
-    const audio = document.getElementById('bg-audio');
-    audio.volume = 0.5;
-    let isPlaying = false;
-
-    // Al tocar el nombre de marca en el header, volver al hero (arriba del todo)
-    const brandHomeLink = document.getElementById('brand-home-link');
-    if (brandHomeLink) {
-      brandHomeLink.addEventListener('click', (e) => {
-        e.preventDefault();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      });
-    }
-
-    function togglePlay() {
-      const playIcon = document.getElementById('playIcon');
-      const playerContainer = document.getElementById('musicPlayerContainer');
-
-      if (isPlaying) {
-        audio.pause();
-        playIcon.textContent = '▶';
-        playerContainer.classList.remove('playing');
-        isPlaying = false;
-      } else {
-        audio.play().then(() => {
-          playIcon.textContent = '❚❚';
-          playerContainer.classList.add('playing');
-          isPlaying = true;
-        }).catch(error => {
-          console.log("El navegador bloqueó la reproducción automática:", error);
-        });
-      }
-    }
-
-    // Efecto Typewriter (Escribir texto fluido)
-    const textToType = "Terapias Holísticas\nTerapeuta, facilitadora\nIvana I. Lamberti";
-    const typewriterElement = document.getElementById('typewriter-text');
-    let charIndex = 0;
-
-    function typeWriter() {
-      if (charIndex < textToType.length) {
-        const char = textToType.charAt(charIndex);
-        if (char === '\n') {
-          typewriterElement.innerHTML += '<br>';
-        } else {
-          typewriterElement.innerHTML += char;
-        }
-        charIndex++;
-        setTimeout(typeWriter, 45); // Velocidad de tipeo
-      }
-    }
-
-    // Iniciar el efecto máquina de escribir al cargar la página
-    window.addEventListener('DOMContentLoaded', () => {
-      setTimeout(typeWriter, 600);
-    });
-
-    // Parallax suave de las capas de estrellas según el scroll
-    const parallax1 = document.getElementById('parallax-1');
-    const parallax2 = document.getElementById('parallax-2');
-    let parallaxTicking = false;
-
-    function updateParallax() {
-      const y = window.scrollY;
-      parallax1.style.transform = `translateY(${y * 0.05}px)`;
-      parallax2.style.transform = `translateY(${y * 0.1}px)`;
-      parallaxTicking = false;
-    }
-
-    window.addEventListener('scroll', () => {
-      if (!parallaxTicking) {
-        requestAnimationFrame(updateParallax);
-        parallaxTicking = true;
-      }
-    }, { passive: true });
-
-    gsap.registerPlugin(ScrollTrigger);
-
-    const items = document.querySelectorAll('.therapy-item');
-    const images = document.querySelectorAll('.portal-img');
-    const bgMain = document.getElementById('main-bg');
-    const playerContainer = document.getElementById('musicPlayerContainer');
-    const playBtn = document.getElementById('playBtn');
-    const eqBars = document.querySelectorAll('.dynamic-eq');
-    const MOBILE_QUERY = window.matchMedia('(max-width: 960px)');
-
-    // En mobile, el portal circular (.visual-col) se reubica físicamente
-    // dentro de #mobileCarouselStage (arriba del carrusel) para que
-    // portal + tarjeta + puntitos formen un único bloque de una
-    // pantalla completa y centrada, sin que nada quede afuera. En
-    // desktop vuelve a su lugar original: columna sticky junto al texto.
-    const textCol = document.querySelector('.text-col');
-    const visualCol = document.querySelector('.visual-col');
-    const mobileCarouselStage = document.getElementById('mobileCarouselStage');
-
-    function placePortalForViewport() {
-      if (!visualCol || !mobileCarouselStage || !textCol) return;
-      if (MOBILE_QUERY.matches) {
-        mobileCarouselStage.prepend(visualCol);
-      } else {
-        textCol.insertAdjacentElement('afterend', visualCol);
-      }
-    }
-    placePortalForViewport();
-    if (MOBILE_QUERY.addEventListener) {
-      MOBILE_QUERY.addEventListener('change', placePortalForViewport);
-    }
-
-    // En mobile las 7 tarjetas viven una al lado de la otra dentro de un
-    // carrusel horizontal (misma altura de página para las 7), así que
-    // un ScrollTrigger de scroll VERTICAL no sirve para saber cuál está
-    // centrada — de eso se encarga el bloque "carrusel mobile" más abajo,
-    // que llama a esta misma activateSection() al deslizar.
-    if (!MOBILE_QUERY.matches) {
-      items.forEach((item, index) => {
-        ScrollTrigger.create({
-          trigger: item,
-          start: "top center",
-          end: "bottom center",
-          onEnter: () => activateSection(index, item),
-          onEnterBack: () => activateSection(index, item)
-        });
-      });
-    }
-
-    // El bloque hero muestra el logo en el portal mientras está en pantalla,
-    // antes de que el scroll llegue a la primera terapia
-    const heroBlock = document.querySelector('.hero-block');
-    if (heroBlock) {
-      ScrollTrigger.create({
-        trigger: heroBlock,
-        start: "top center",
-        end: "bottom center",
-        onEnter: activateHero,
-        onEnterBack: activateHero
-      });
-    }
-
-    // Mobile: al llegar al stage del carrusel (portal+tarjeta) sincronizamos
-    // el portal con la tarjeta que esté centrada en ese momento — por
-    // defecto la primera (Constelaciones Familiares) — en vez de dejar el
-    // logo que puso activateHero(). También se re-sincroniza si el
-    // usuario sube al hero y vuelve a bajar sin haber deslizado.
-    if (mobileCarouselStage) {
-      ScrollTrigger.create({
-        trigger: mobileCarouselStage,
-        start: "top center",
-        end: "bottom center",
-        onEnter: () => { if (MOBILE_QUERY.matches) updateCarouselFromScroll(true); },
-        onEnterBack: () => { if (MOBILE_QUERY.matches) updateCarouselFromScroll(true); }
-      });
-    }
-
-    // onEnter/onEnterBack de ScrollTrigger solo disparan cuando el scroll
-    // CRUZA el punto de inicio del trigger. Como el hero ya está a la
-    // vista apenas carga la página (sin necesidad de scrollear), nunca se
-    // dispara solo — hay que activarlo a mano una vez al cargar.
-    activateHero();
-
-    function activateHero() {
-      items.forEach(el => el.classList.remove('active'));
-
-      images.forEach(img => img.classList.remove('active'));
-      const logoImg = document.getElementById('img-logo');
-      if (logoImg) logoImg.classList.add('active');
-
-      bgMain.style.background = `radial-gradient(circle at 12% 30%, rgba(76, 155, 163, 0.28) 0%, transparent 45%), radial-gradient(circle at 88% 28%, rgba(224, 178, 90, 0.28) 0%, transparent 50%), var(--bg-base)`;
-
-      playerContainer.style.borderColor = 'var(--gold-dim)';
-      playerContainer.style.boxShadow = '0 10px 30px rgba(28, 49, 68, 0.12), 0 0 20px rgba(201, 152, 47, 0.15)';
-      playBtn.style.background = 'var(--gold)';
-      playBtn.style.boxShadow = '0 0 15px rgba(201, 152, 47, 0.4)';
-      eqBars.forEach(bar => bar.style.background = 'var(--gold)');
-    }
-
-    // Fade-up: revela título, texto, beneficios y botón al entrar en pantalla
-    const revealObserver = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('in-view');
-          revealObserver.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.2, rootMargin: '0px 0px -10% 0px' });
-
-    items.forEach(item => revealObserver.observe(item));
-
-    function activateSection(index, currentItem) {
-      items.forEach(el => el.classList.remove('active'));
-      currentItem.classList.add('active');
-
-      images.forEach(img => img.classList.remove('active'));
-      const targetImg = document.getElementById(`img-${index}`);
-      if(targetImg) targetImg.classList.add('active');
-
-      // Cambiar fondo cósmico: mantiene el velo de acuarela teal/dorado de marca
-      // y suma un matiz sutil del color de la terapia activa
-      const newColor = currentItem.getAttribute('data-color');
-      bgMain.style.background = `radial-gradient(circle at 60% 35%, ${newColor}30 0%, transparent 50%), radial-gradient(circle at 12% 30%, rgba(76, 155, 163, 0.28) 0%, transparent 45%), radial-gradient(circle at 88% 28%, rgba(224, 178, 90, 0.28) 0%, transparent 50%), var(--bg-base)`;
-
-      // Cambiar colores dinámicos del reproductor según la sección
-      const accentContextColor = currentItem.getAttribute('data-accent');
-      playerContainer.style.borderColor = accentContextColor + '40';
-      playerContainer.style.boxShadow = `0 10px 30px rgba(28, 49, 68, 0.12), 0 0 20px ${accentContextColor}20`;
-      playBtn.style.background = accentContextColor;
-      playBtn.style.boxShadow = `0 0 15px ${accentContextColor}66`;
-      eqBars.forEach(bar => bar.style.background = accentContextColor);
-    }
-
-    // ---- Carrusel mobile: el portal queda fijo arriba y solo cambia su
-    // imagen/color según qué tarjeta quedó centrada al deslizar. En
-    // desktop este bloque no hace nada (el carrusel no existe como tal,
-    // .therapy-carousel es un wrapper invisible). ----
-    const therapyCarousel = document.getElementById('therapyCarousel');
-    const carouselDots = document.querySelectorAll('#therapyDots .dot');
-
-    function setActiveDot(index) {
-      carouselDots.forEach((dot, i) => dot.classList.toggle('active', i === index));
-    }
-
-    let lastCarouselIndex = null;
-
-    function updateCarouselFromScroll(force) {
-      if (!therapyCarousel) return;
-      const containerRect = therapyCarousel.getBoundingClientRect();
-      const containerCenter = containerRect.left + containerRect.width / 2;
-      let closestItem = null;
-      let closestIndex = 0;
-      let closestDist = Infinity;
-      items.forEach((item, index) => {
-        const rect = item.getBoundingClientRect();
-        const dist = Math.abs((rect.left + rect.width / 2) - containerCenter);
-        if (dist < closestDist) {
-          closestDist = dist;
-          closestItem = item;
-          closestIndex = index;
-        }
-      });
-      // Solo repintar (fondo, reproductor, punto activo) cuando la tarjeta
-      // centrada realmente cambió — evita repaints innecesarios en cada
-      // frame de scroll mientras se está deslizando, que era la causa de
-      // los bajones de FPS al recorrer el carrusel. `force` se usa para
-      // resincronizar igual, por ejemplo al volver del hero (que puso el
-      // logo en el portal) aunque el índice "centrado" no haya cambiado.
-      if (closestItem && (force || closestIndex !== lastCarouselIndex)) {
-        lastCarouselIndex = closestIndex;
-        activateSection(closestIndex, closestItem);
-        setActiveDot(closestIndex);
-      }
-    }
-
-    if (therapyCarousel) {
-      let carouselTicking = false;
-      therapyCarousel.addEventListener('scroll', () => {
-        if (!MOBILE_QUERY.matches || carouselTicking) return;
-        carouselTicking = true;
-        requestAnimationFrame(() => {
-          updateCarouselFromScroll();
-          carouselTicking = false;
-        });
-      }, { passive: true });
-
-      carouselDots.forEach((dot) => {
-        dot.addEventListener('click', () => {
-          const target = items[Number(dot.dataset.index)];
-          if (target) target.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-        });
-      });
-
-      // Estado inicial del portal y los puntitos apenas carga, si ya
-      // estamos en mobile: debe arrancar en la primera tarjeta
-      // (Constelaciones Familiares), no en el logo del hero.
-      if (MOBILE_QUERY.matches) updateCarouselFromScroll(true);
-    }
-
-    // Agendar Sesión: el botón siempre lleva directo a WhatsApp.
-    // Si la persona ya eligió una terapia puntual, el mensaje viene personalizado;
-    // si llega directo a esta sección, se envía un mensaje genérico.
-    const whatsappNumber = '5493535654858';
-    const whatsappCta = document.getElementById('whatsapp-cta');
-    const whatsappCtaLabel = document.getElementById('whatsapp-cta-label');
-    const agendaSelected = document.getElementById('agenda-selected');
-
-    function setWhatsappMessage(therapyName) {
-      const message = therapyName
-        ? `Hola! Quiero agendar una sesión de ${therapyName}.`
-        : 'Hola! Quiero agendar una sesión.';
-      whatsappCta.href = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
-    }
-
-    setWhatsappMessage(null);
-
-    document.querySelectorAll('.therapy-item .btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const therapyItem = btn.closest('.therapy-item');
-        const therapyName = therapyItem.querySelector('h2').textContent.trim();
-        setWhatsappMessage(therapyName);
-        whatsappCtaLabel.textContent = 'Escribinos por WhatsApp';
-        agendaSelected.textContent = `Terapia seleccionada: ${therapyName}`;
-        agendaSelected.classList.add('visible');
-      });
-    });
-  </script>
-
-  <script>
-  // =========================================
-  // CALCULADORA DE CARTA NATAL
-  // =========================================
-  (function () {
-    const ZODIAC_SIGNS = [
-      { name: 'Aries', glyph: '♈', slug: 'aries' }, { name: 'Tauro', glyph: '♉', slug: 'tauro' }, { name: 'Géminis', glyph: '♊', slug: 'geminis' },
-      { name: 'Cáncer', glyph: '♋', slug: 'cancer' }, { name: 'Leo', glyph: '♌', slug: 'leo' }, { name: 'Virgo', glyph: '♍', slug: 'virgo' },
-      { name: 'Libra', glyph: '♎', slug: 'libra' }, { name: 'Escorpio', glyph: '♏', slug: 'escorpio' }, { name: 'Sagitario', glyph: '♐', slug: 'sagitario' },
-      { name: 'Capricornio', glyph: '♑', slug: 'capricornio' }, { name: 'Acuario', glyph: '♒', slug: 'acuario' }, { name: 'Piscis', glyph: '♓', slug: 'piscis' }
-    ];
-
-    const PLANETS = [
-      { key: 'Sun', label: 'Sol', glyph: '☉' },
-      { key: 'Moon', label: 'Luna', glyph: '☾' },
-      { key: 'Mercury', label: 'Mercurio', glyph: '☿' },
-      { key: 'Venus', label: 'Venus', glyph: '♀' },
-      { key: 'Mars', label: 'Marte', glyph: '♂' },
-      { key: 'Jupiter', label: 'Júpiter', glyph: '♃' },
-      { key: 'Saturn', label: 'Saturno', glyph: '♄' },
-      { key: 'Uranus', label: 'Urano', glyph: '♅' },
-      { key: 'Neptune', label: 'Neptuno', glyph: '♆' },
-      { key: 'Pluto', label: 'Plutón', glyph: '♇' }
-    ];
-
-    function toRad(d) { return d * Math.PI / 180; }
-    function norm360(d) { return ((d % 360) + 360) % 360; }
-    function toDegNorm(r) { return norm360(r * 180 / Math.PI); }
-
-    function signOf(lonDeg) {
-      const n = norm360(lonDeg);
-      const idx = Math.floor(n / 30);
-      return { sign: ZODIAC_SIGNS[idx], deg: n % 30 };
-    }
-
-    function calcMC(ramcDeg, oblDeg) {
-      const ramc = toRad(ramcDeg), obl = toRad(oblDeg);
-      return toDegNorm(Math.atan2(Math.sin(ramc), Math.cos(ramc) * Math.cos(obl)));
-    }
-    function calcAsc(ramcDeg, oblDeg, latDeg) {
-      const ramc = toRad(ramcDeg), obl = toRad(oblDeg), lat = toRad(latDeg);
-      return toDegNorm(Math.atan2(Math.cos(ramc), -(Math.sin(ramc) * Math.cos(obl) + Math.tan(lat) * Math.sin(obl))));
-    }
-
-    async function geocode(place) {
-      const url = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&limit=8&q=${encodeURIComponent(place)}`;
-      const res = await fetch(url, { headers: { 'Accept-Language': 'es' } });
-      if (!res.ok) throw new Error('No se pudo geolocalizar el lugar.');
-      const data = await res.json();
-      if (!data || !data.length) throw new Error('No encontramos esa ciudad. Probá escribiendo "Ciudad, País".');
-
-      // Nominatim puede devolver calles, parques o monumentos junto con ciudades reales.
-      // Priorizamos resultados que sean lugares poblados (ciudad, pueblo, localidad, etc.)
-      // y descartamos calles/parques/edificios, aunque tengan un nombre parecido a lo buscado.
-      const PREFERRED_TYPES = ['city', 'town', 'village', 'municipality', 'hamlet', 'county', 'state', 'administrative'];
-      const EXCLUDED_CLASSES = ['highway', 'leisure', 'amenity', 'shop', 'tourism', 'building', 'historic'];
-
-      const ranked = [...data].sort((a, b) => {
-        const scoreOf = (r) => {
-          const type = r.addresstype || r.type || '';
-          const cls = r.class || '';
-          let score = parseFloat(r.importance) || 0;
-          if (PREFERRED_TYPES.includes(type)) score += 2;
-          if (EXCLUDED_CLASSES.includes(cls)) score -= 3;
-          return score;
-        };
-        return scoreOf(b) - scoreOf(a);
-      });
-
-      const best = ranked[0];
-      return { lat: parseFloat(best.lat), lon: parseFloat(best.lon), label: best.display_name };
-    }
-
-    function computeChart({ year, month, day, hour, minute, lat, lon }) {
-      const tzName = tzlookup(lat, lon);
-      const { DateTime } = luxon;
-      const localDT = DateTime.fromObject({ year, month, day, hour, minute }, { zone: tzName });
-      if (!localDT.isValid) throw new Error('Fecha u hora inválida.');
-      const utcDT = localDT.toUTC();
-
-      const Astronomy = window.Astronomy;
-      const time = Astronomy.MakeTime(utcDT.toJSDate());
-
-      const planets = PLANETS.map(p => {
-        const vec = Astronomy.GeoVector(Astronomy.Body[p.key], time, true);
-        const ecl = Astronomy.Ecliptic(vec);
-        return { ...p, lon: norm360(ecl.elon) };
-      });
-
-      // Hora sideral de Greenwich (horas) -> Hora sideral local en grados (RAMC)
-      const gstHours = Astronomy.SiderealTime(time);
-      const ramc = norm360(gstHours * 15 + lon);
-
-      // Oblicuidad de la eclíptica para la fecha (fórmula estándar de baja variación)
-      const T = (utcDT.toMillis() / 86400000 - 10957.5) / 36525;
-      const obliquity = 23.4392911 - 0.0130042 * T;
-
-      const asc = calcAsc(ramc, obliquity, lat);
-      const mc = calcMC(ramc, obliquity);
-
-      // Sistema de Casas Iguales: cada casa ocupa 30° a partir del Ascendente
-      const houseCusps = [];
-      for (let i = 0; i < 12; i++) houseCusps.push(norm360(asc + i * 30));
-
-      function houseOf(lonDeg) {
-        return Math.floor(norm360(lonDeg - asc) / 30) + 1;
-      }
-
-      return {
-        tzName,
-        planets: planets.map(p => ({ ...p, house: houseOf(p.lon) })),
-        asc, mc, houseCusps
-      };
-    }
-
-    function renderWheel(chart) {
-      const size = 400, cx = size / 2, cy = size / 2;
-      const rOuter = 190, rSignRing = 165, rHouseLine = 148, rPlanet = 115;
-
-      // El Ascendente se ubica a la izquierda (convención estándar) y el
-      // zodíaco avanza en sentido antihorario a medida que crece la longitud eclíptica
-      function point(lonDeg, radius) {
-        const angle = toRad(180 + (lonDeg - chart.asc));
-        return { x: cx + radius * Math.cos(angle), y: cy - radius * Math.sin(angle) };
-      }
-
-      let svg = `<svg viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">`;
-
-      // ---- IMAGEN DE FONDO: SIGNO SOLAR (sin imágenes todavía) ----
-      // El fondo de la rueda muestra la imagen del signo donde cae el Sol
-      // en la carta. Se escala siempre a partir de rOuter, así que se
-      // adapta automáticamente si en algún momento cambia el tamaño de la
-      // rueda. Cuando subas los archivos reales, colocalos en
-      // assets/zodiac/{slug}.png (aries, tauro, geminis, cancer, leo,
-      // virgo, libra, escorpio, sagitario, capricornio, acuario, piscis)
-      // — no hace falta tocar este código: si el archivo no existe
-      // todavía, la imagen simplemente no se muestra.
-      const sun = chart.planets.find(p => p.key === 'Sun');
-      const sunSign = signOf(sun.lon);
-
-      svg += `
-        <image
-          href="/assets/zodiac/${sunSign.sign.slug}.png"
-          x="${cx - rOuter}"
-          y="${cy - rOuter}"
-          width="${rOuter * 2}"
-          height="${rOuter * 2}"
-          preserveAspectRatio="xMidYMid meet"
-          opacity="0.22"
-          onerror="console.error('No se pudo cargar la imagen del signo solar:', '/assets/zodiac/${sunSign.sign.slug}.png')"
-        />
-      `;
-
-      svg += `<circle cx="${cx}" cy="${cy}" r="${rOuter}" fill="none" stroke="var(--gold-dim)" stroke-width="1.5"/>`;
-      svg += `<circle cx="${cx}" cy="${cy}" r="${rSignRing}" fill="none" stroke="var(--gold-dim)" stroke-width="1"/>`;
-      svg += `<circle cx="${cx}" cy="${cy}" r="${rHouseLine}" fill="none" stroke="rgba(28,49,68,0.12)" stroke-width="1"/>`;
-
-      for (let i = 0; i < 12; i++) {
-        const lon = i * 30;
-        const p1 = point(lon, rOuter);
-        const p2 = point(lon, rHouseLine);
-        svg += `<line x1="${p1.x.toFixed(1)}" y1="${p1.y.toFixed(1)}" x2="${p2.x.toFixed(1)}" y2="${p2.y.toFixed(1)}" stroke="var(--gold-dim)" stroke-width="1"/>`;
-        const mid = point(lon + 15, rSignRing + 14);
-        svg += `<text x="${mid.x.toFixed(1)}" y="${mid.y.toFixed(1)}" text-anchor="middle" dominant-baseline="middle" font-size="15" fill="var(--gold)">${ZODIAC_SIGNS[i].glyph}</text>`;
-      }
-
-      chart.houseCusps.forEach((cusp, i) => {
-        const p1 = point(cusp, rHouseLine);
-        const isAngular = (i === 0 || i === 3 || i === 6 || i === 9);
-        svg += `<line x1="${cx}" y1="${cy}" x2="${p1.x.toFixed(1)}" y2="${p1.y.toFixed(1)}" stroke="rgba(28,49,68,${isAngular ? 0.3 : 0.12})" stroke-width="${isAngular ? 1.4 : 0.7}"/>`;
-        const numPt = point(cusp + 15, rHouseLine - 16);
-        svg += `<text x="${numPt.x.toFixed(1)}" y="${numPt.y.toFixed(1)}" text-anchor="middle" dominant-baseline="middle" font-size="9" fill="rgba(92,109,126,0.75)">${i + 1}</text>`;
-      });
-
-      const ascPt = point(chart.asc, rOuter + 14);
-      svg += `<text x="${ascPt.x.toFixed(1)}" y="${ascPt.y.toFixed(1)}" text-anchor="middle" dominant-baseline="middle" font-size="11" font-weight="700" fill="var(--ink)">ASC</text>`;
-      const mcPt = point(chart.mc, rOuter + 14);
-      svg += `<text x="${mcPt.x.toFixed(1)}" y="${mcPt.y.toFixed(1)}" text-anchor="middle" dominant-baseline="middle" font-size="11" font-weight="700" fill="var(--ink)">MC</text>`;
-
-      const sorted = [...chart.planets].sort((a, b) => a.lon - b.lon);
-      const placed = [];
-      sorted.forEach(p => {
-        let radius = rPlanet;
-        for (const other of placed) {
-          let diff = Math.abs(p.lon - other.lon);
-          if (diff > 180) diff = 360 - diff;
-          if (diff < 6) radius -= 16;
-        }
-        placed.push({ lon: p.lon, radius });
-        const pt = point(p.lon, radius);
-        svg += `<circle cx="${pt.x.toFixed(1)}" cy="${pt.y.toFixed(1)}" r="10" fill="var(--bg-base)" stroke="var(--teal)" stroke-width="1"/>`;
-        svg += `<text x="${pt.x.toFixed(1)}" y="${pt.y.toFixed(1)}" text-anchor="middle" dominant-baseline="central" font-size="12" fill="var(--teal)">${p.glyph}</text>`;
-      });
-
-      svg += `<circle cx="${cx}" cy="${cy}" r="3" fill="var(--gold)"/>`;
-      svg += `</svg>`;
-      return svg;
-    }
-
-    function renderLegend(chart) {
-      const rows = chart.planets.map(p => {
-        const { sign, deg } = signOf(p.lon);
-        return `<div class="natal-legend-item">
-          <span class="natal-legend-planet"><span class="glyph">${p.glyph}</span> ${p.label}</span>
-          <span class="natal-legend-detail">${deg.toFixed(1)}° ${sign.glyph} ${sign.name} · Casa ${p.house}</span>
-        </div>`;
-      }).join('');
-      const ascSign = signOf(chart.asc);
-      const mcSign = signOf(chart.mc);
-      return `<p class="natal-legend-heading">Puntos angulares</p>
-        <div class="natal-legend-item">
-          <span class="natal-legend-planet"><span class="glyph">↑</span> Ascendente</span>
-          <span class="natal-legend-detail">${ascSign.deg.toFixed(1)}° ${ascSign.sign.glyph} ${ascSign.sign.name}</span>
-        </div>
-        <div class="natal-legend-item">
-          <span class="natal-legend-planet"><span class="glyph">⟟</span> Medio Cielo</span>
-          <span class="natal-legend-detail">${mcSign.deg.toFixed(1)}° ${mcSign.sign.glyph} ${mcSign.sign.name}</span>
-        </div>
-        <p class="natal-legend-heading" style="margin-top:1.2rem;">Planetas</p>
-        ${rows}`;
-    }
-
-    const form = document.getElementById('natal-form');
-    const statusEl = document.getElementById('natal-status');
-    const resultEl = document.getElementById('natal-result');
-    const wheelWrap = document.getElementById('natal-wheel-wrap');
-    const legendEl = document.getElementById('natal-legend');
-    const submitBtn = document.getElementById('natal-submit');
-
-    if (form) {
-      form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        statusEl.classList.remove('error');
-        statusEl.textContent = 'Ubicando tu lugar de nacimiento...';
-        resultEl.classList.remove('visible');
-        submitBtn.disabled = true;
-
-        try {
-          // Red de seguridad: si por scroll rápido o un link directo a
-          // #carta-natal las librerías todavía no terminaron de cargar,
-          // esperamos acá (normalmente ya están listas y esto es instantáneo).
-          if (window.loadNatalLibraries) {
-            await window.loadNatalLibraries();
-          }
-
-          const dateVal = document.getElementById('natal-date').value;
-          const timeVal = document.getElementById('natal-time').value;
-          const placeVal = document.getElementById('natal-place').value.trim();
-          if (!dateVal || !timeVal || !placeVal) throw new Error('Completá los tres campos.');
-
-          const [year, month, day] = dateVal.split('-').map(Number);
-          const [hour, minute] = timeVal.split(':').map(Number);
-
-          const geo = await geocode(placeVal);
-          statusEl.textContent = 'Calculando posiciones planetarias...';
-
-          const chart = computeChart({ year, month, day, hour, minute, lat: geo.lat, lon: geo.lon });
-
-          wheelWrap.innerHTML = renderWheel(chart);
-          legendEl.innerHTML = renderLegend(chart);
-          resultEl.classList.add('visible');
-          statusEl.textContent = `Carta calculada para ${geo.label.split(',').slice(0, 2).join(',')} · zona horaria ${chart.tzName}`;
-        } catch (err) {
-          statusEl.classList.add('error');
-          statusEl.textContent = err.message || 'Ocurrió un error al calcular la carta.';
-        } finally {
-          submitBtn.disabled = false;
-        }
-      });
-    }
-  })();
-  </script>
-
-  <!-- =========================================
-       TU CARTA DEL DÍA · CONTENIDO (editable sin tocar la lógica)
-       ========================================= -->
-  <script>
-    // Los 22 Arcanos Mayores, con significado derecho e invertido.
-    // "image" apunta a ./assets/astrales/{slug}.jpg — subí ahí los archivos
-    // con ese mismo nombre exacto (y un dorso común en dorso.jpg).
-    const TAROT_ARCANA = [
-      { id: 0, numeral: '0', name: 'El Loco',
-        upright: { meaning: 'Comienzos, espontaneidad, fe en lo desconocido', energy: 'constructiva', description: 'Un nuevo capítulo se abre ante vos. Es momento de dar el primer paso con el corazón liviano, aunque no tengas todas las respuestas.' },
-        reversed: { meaning: 'Imprudencia, dudas, miedo a arriesgar', energy: 'desafiante', description: 'Algo te frena antes de empezar. Quizás estés actuando sin pensar, o paralizada por el miedo a equivocarte — ambos extremos piden equilibrio.' } },
-      { id: 1, numeral: 'I', name: 'El Mago',
-        upright: { meaning: 'Voluntad, manifestación, recursos propios', energy: 'constructiva', description: 'Tenés todas las herramientas que necesitás al alcance de la mano. Es momento de transformar la intención en acción concreta.' },
-        reversed: { meaning: 'Manipulación, potencial desaprovechado', energy: 'desafiante', description: 'Tus talentos están ahí, pero algo los está bloqueando — puede ser inseguridad, dispersión, o el uso indebido del propio poder.' } },
-      { id: 2, numeral: 'II', name: 'La Sacerdotisa',
-        upright: { meaning: 'Intuición, misterio, sabiduría interior', energy: 'constructiva', description: 'Hay respuestas que no se encuentran razonando, sino escuchando el silencio. Confiá en lo que tu intuición te viene diciendo.' },
-        reversed: { meaning: 'Secretos, desconexión de una misma', energy: 'desafiante', description: 'Estás ignorando una voz interior que insiste. Puede ser momento de hacer silencio y volver a escucharte.' } },
-      { id: 3, numeral: 'III', name: 'La Emperatriz',
-        upright: { meaning: 'Abundancia, fertilidad, conexión con la naturaleza', energy: 'constructiva', description: 'Un momento fértil de creación y crecimiento. Permitite recibir y disfrutar de lo que estás gestando.' },
-        reversed: { meaning: 'Bloqueo creativo, descuido propio', energy: 'desafiante', description: 'Te estás postergando a vos misma. Revisá si estás cuidando tu energía tanto como cuidás a los demás.' } },
-      { id: 4, numeral: 'IV', name: 'El Emperador',
-        upright: { meaning: 'Estructura, autoridad, estabilidad', energy: 'constructiva', description: 'Es tiempo de poner orden y sostener tu palabra. La disciplina de hoy construye la seguridad de mañana.' },
-        reversed: { meaning: 'Rigidez, control excesivo', energy: 'desafiante', description: 'El control se volvió una prisión. Quizás necesites soltar un poco de estructura para volver a fluir.' } },
-      { id: 5, numeral: 'V', name: 'El Hierofante',
-        upright: { meaning: 'Tradición, aprendizaje, guía espiritual', energy: 'constructiva', description: 'Un maestro, una enseñanza o una tradición tienen algo valioso para ofrecerte en este momento.' },
-        reversed: { meaning: 'Cuestionamiento de creencias, rebeldía', energy: 'desafiante', description: 'Estás poniendo en duda lo que antes dabas por sentado — es una parte necesaria de encontrar tu propio camino.' } },
-      { id: 6, numeral: 'VI', name: 'Los Enamorados',
-        upright: { meaning: 'Unión, elección, alineación de valores', energy: 'constructiva', description: 'Una decisión importante está frente a vos. Elegí desde el corazón, en sintonía con lo que realmente valorás.' },
-        reversed: { meaning: 'Desequilibrio, conflicto de valores', energy: 'desafiante', description: 'Hay una tensión entre lo que sentís y lo que hacés. Revisar tus prioridades te va a traer claridad.' } },
-      { id: 7, numeral: 'VII', name: 'El Carro',
-        upright: { meaning: 'Determinación, avance, victoria', energy: 'constructiva', description: 'Tenés la fuerza de voluntad para superar lo que se te presente. Mantené el rumbo con confianza.' },
-        reversed: { meaning: 'Falta de dirección, dispersión', energy: 'desafiante', description: 'Sentís que vas para todos lados a la vez. Antes de acelerar, definí hacia dónde realmente querés ir.' } },
-      { id: 8, numeral: 'VIII', name: 'La Justicia',
-        upright: { meaning: 'Coraje, paciencia, fuerza interior serena', energy: 'constructiva', description: 'La verdadera fuerza no grita — sostiene. Enfrentás esta etapa con más templanza de la que creés tener.' },
-        reversed: { meaning: 'Autoduda, agotamiento emocional', energy: 'desafiante', description: 'Te estás exigiendo de más. Un poco de compasión hacia vos misma es lo que hace falta ahora.' } },
-      { id: 9, numeral: 'IX', name: 'El Ermitaño',
-        upright: { meaning: 'Introspección, búsqueda interior, guía propia', energy: 'constructiva', description: 'Es momento de hacer una pausa y mirar hacia adentro. Las respuestas que buscás están en el silencio, no afuera.' },
-        reversed: { meaning: 'Aislamiento excesivo, soledad no elegida', energy: 'desafiante', description: 'El retiro se volvió encierro. Quizás sea hora de volver a abrirte a los demás.' } },
-      { id: 10, numeral: 'X', name: 'La Rueda de la Fortuna',
-        upright: { meaning: 'Cambio, ciclos, un giro de destino', energy: 'constructiva', description: 'Algo está por moverse — un ciclo se cierra y otro comienza. Confiá en el movimiento natural de la vida.' },
-        reversed: { meaning: 'Resistencia al cambio, mala racha', energy: 'desafiante', description: 'Sentís que las cosas no están de tu lado. Recordá que los ciclos siempre vuelven a girar.' } },
-      { id: 11, numeral: 'XI', name: 'La Fuerza',
-        upright: { meaning: 'Equilibrio, verdad, causa y efecto', energy: 'constructiva', description: 'Cada acción tiene su consecuencia. Este es un buen momento para actuar con honestidad y claridad.' },
-        reversed: { meaning: 'Injusticia, decisiones evasivas', energy: 'desafiante', description: 'Algo se siente desequilibrado o poco claro. Puede ser momento de asumir una responsabilidad que venís postergando.' } },
-      { id: 12, numeral: 'XII', name: 'El Colgado',
-        upright: { meaning: 'Rendición, nueva perspectiva, pausa', energy: 'constructiva', description: 'A veces avanzar es soltar el control y mirar la situación desde otro ángulo. La quietud también es un camino.' },
-        reversed: { meaning: 'Estancamiento, resistencia a soltar', energy: 'desafiante', description: 'Te estás aferrando a algo que ya no te sirve. Soltar no es perder, es hacer espacio.' } },
-      { id: 13, numeral: 'XIII', name: 'La Muerte',
-        upright: { meaning: 'Transformación, cierre, renacimiento', energy: 'constructiva', description: 'Algo en vos está terminando para dar lugar a algo nuevo. No lo temas: es parte del ciclo natural de crecer.' },
-        reversed: { meaning: 'Resistencia al cierre, estancamiento', energy: 'desafiante', description: 'Hay un final que estás evitando. Cuanto más lo postergués, más cuesta el proceso de renacer.' } },
-      { id: 14, numeral: 'XIV', name: 'La Templanza',
-        upright: { meaning: 'Equilibrio, paciencia, integración', energy: 'constructiva', description: 'Estás encontrando el punto medio entre extremos. Seguí mezclando con calma, sin apurar el resultado.' },
-        reversed: { meaning: 'Desequilibrio, excesos', energy: 'desafiante', description: 'Algo en tu vida está desbalanceado. Buscá dónde estás yendo de más, o de menos, y reencontrá el punto medio.' } },
-      { id: 15, numeral: 'XV', name: 'El Diablo',
-        upright: { meaning: 'Ataduras, deseo, sombra propia', energy: 'desafiante', description: 'Hay algo que te tiene atrapada — un hábito, un vínculo, un miedo. Reconocerlo ya es el primer paso para soltarlo.' },
-        reversed: { meaning: 'Liberación, ruptura de cadenas', energy: 'constructiva', description: 'Estás empezando a soltar aquello que te limitaba. El poder de elegir distinto vuelve a tus manos.' } },
-      { id: 16, numeral: 'XVI', name: 'La Torre',
-        upright: { meaning: 'Quiebre repentino, revelación, caída de lo falso', energy: 'desafiante', description: 'Algo se derrumba para revelar lo que realmente importa. Un cambio brusco puede ser, en el fondo, una liberación.' },
-        reversed: { meaning: 'Cambio evitado, crisis interna', energy: 'desafiante', description: 'Estás resistiendo un cambio que igual va a llegar. A veces es mejor dejar caer lo que ya no sostiene.' } },
-      { id: 17, numeral: 'XVII', name: 'La Estrella',
-        upright: { meaning: 'Esperanza, inspiración, confianza', energy: 'constructiva', description: 'Después de la tormenta, llega la calma. Esta carta te invita a volver a confiar y soñar.' },
-        reversed: { meaning: 'Desesperanza, desconexión de la fe', energy: 'desafiante', description: 'Sentís que la luz se apagó un poco. Recordá que la esperanza no desaparece, solo está esperando que la mires de nuevo.' } },
-      { id: 18, numeral: 'XVIII', name: 'La Luna',
-        upright: { meaning: 'Intuición, sueños, lo oculto que emerge', energy: 'desafiante', description: 'No todo es lo que parece. Confiá en tu intuición para atravesar esta etapa de incertidumbre.' },
-        reversed: { meaning: 'Confusión, miedos que se disipan', energy: 'constructiva', description: 'Los miedos que te venían persiguiendo empiezan a perder fuerza. La claridad está más cerca de lo que creés.' } },
-      { id: 19, numeral: 'XIX', name: 'El Sol',
-        upright: { meaning: 'Alegría, vitalidad, éxito', energy: 'constructiva', description: 'Un momento de luz, claridad y buena energía te acompaña. Disfrutalo con gratitud.' },
-        reversed: { meaning: 'Alegría postergada, exceso de optimismo', energy: 'constructiva', description: 'La luz está ahí, aunque cueste verla. Date permiso de encontrar pequeñas alegrías, aunque el panorama no sea perfecto.' } },
-      { id: 20, numeral: 'XX', name: 'El Juicio',
-        upright: { meaning: 'Renacimiento, llamado interior, evaluación', energy: 'constructiva', description: 'Es tiempo de un despertar — de mirar atrás con honestidad y dar un paso hacia quien querés ser.' },
-        reversed: { meaning: 'Autocrítica excesiva, dudas sobre el propio camino', energy: 'desafiante', description: 'Te estás juzgando con demasiada dureza. El cambio que buscás empieza con más compasión hacia vos misma.' } },
-      { id: 21, numeral: 'XXI', name: 'El Mundo',
-        upright: { meaning: 'Cumplimiento, integración, un ciclo completo', energy: 'constructiva', description: 'Un ciclo importante llega a su fin. Celebrá el camino recorrido antes de empezar el próximo.' },
-        reversed: { meaning: 'Cierre pendiente, sensación de incompletitud', energy: 'desafiante', description: 'Sentís que falta algo para cerrar esta etapa. Date el tiempo que necesites, no hay que apurar los finales.' } }
-    ].map(c => ({
-      ...c,
-      slug: c.id + '-' + c.name.toLowerCase()
-        .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-        .replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
-      image: './assets/astrales/' + c.id + '-' + c.name.toLowerCase()
-        .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-        .replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') + '.jpg'
-    }));
-  </script>
-
-  <!-- =========================================
-       TU TIRADA DEL DÍA · LÓGICA (3 cartas)
-       Por ahora el sorteo y el límite diario se resuelven en el navegador
-       (localStorage). Cuando esté listo el backend (/api/tarot/draw), solo
-       hay que reemplazar drawTodaySpread() por un fetch que devuelva los
-       mismos 3 objetos { cardId, reversed } — el resto (armado de cartas,
-       flip, render, síntesis) queda igual.
-
-       Por qué no hay un texto único por combinación: con 22 cartas × 2
-       posiciones × 3 lugares en la tirada, existen ~85.000 combinaciones
-       posibles — imposible de escribir a mano. En cambio, cada carta se
-       lee en su propia posición (igual que en una tirada real de tarot),
-       y se agrega una frase de síntesis elegida según cuántas cartas de
-       la tirada son "constructivas" — así la lectura se siente unificada
-       sin necesitar un texto por combinación exacta.
-       ========================================= -->
-  <script>
-  (function () {
-    const POSITIONS = [
-      { key: 'pasado', label: 'Tu pasado' },
-      { key: 'presente', label: 'Tu presente' },
-      { key: 'futuro', label: 'Tu futuro' }
-    ];
-
-    // Frases de cierre según cuántas de las 3 cartas salieron con energía
-    // "constructiva" (0 a 3). Dos variantes por caso, elegida al azar,
-    // para que no se sienta siempre idéntica.
-   const SYNTHESIS = {
-  3: [
-    'Las tres cartas te hablan en la misma dirección: es un buen momento para confiar y avanzar.',
-    'Rara vez el cielo se alinea así de claro — aprovechá este impulso favorable.',
-    'Hay una alineación perfecta en tu Lectura; las energías juegan a favor de lo que pensaste.',
-    'Todo en este esquema indica fluidez. Es el momento ideal para tomar la iniciativa con certeza.',
-    'Una lectura profundamente clara y armónica. Confiá en la dirección que estás tomando.',
-    'Los caminos de tu pasado, presente y futuro se abren sin resistencia hacia la resolución.',
-    'La energía que rodea tu inquietud es de plena expansión y avance sin frenos.',
-    'Tenés luz verde del universo: lo que sembraste encuentra hoy un terreno fértil para prosperar.',
-    'Una combinación potente que confirma que estás exactamente donde necesitás estar.',
-    'Las cartas respaldan tu intención con fuerza. Avanzá sin dudas ni titubeos.',
-    'El flujo de tu consulta es impecable; hay coherencia entre de dónde venís y hacia dónde vas.',
-    'Sintonía total en tus tres tiempos. Mantené la fe en tu visión y actuá en consecuencia.',
-    'Un mensaje de pleno respaldo: las circunstancias se acomodan a tu favor.',
-    'Tu intención está alineada con un propósito mayor. Sentite en confianza para dar el paso.',
-    'No hay bloqueos visibles en esta lectura. La respuesta que buscás ya está en marcha.',
-    'Una secuencia luminosa que te invita a soltar los miedos y abrazar lo que viene.',
-    'El panorama es sumamente auspicioso: tenés los recursos y el viento a favor.',
-    'Las decisiones que tomes hoy bajo este clima astral darán frutos sólidos.',
-    'Tirada de manifestación directa. Todo se articula para darte claridad y calma.',
-    'Hay fuerza, dirección y resolución en tus cartas. Un ciclo muy prometedor se consolida.',
-    'La energía fluye con total naturalidad; dejate llevar por este impulso positivo.',
-    'Una excelente señal del universo que disipa las dudas que traías en mente.',
-    'Pasado sanado, presente afianzado y futuro despejado: una lectura sumamente noble.',
-    'Tus pensamientos y tus acciones encontraron hoy un punto de equilibrio perfecto.',
-    'Reconocé este momento de gracia y aprovechalo para materializar tus ideas.',
-    'Los arcanos muestran un camino despejado donde tus talentos serán los protagonistas.',
-    'Un horizonte despejado se despliega ante tu duda; caminá con seguridad.',
-    'Sincronía pura: el mapa de tus cartas refleja la mejor versión de tu proyecto.',
-    'La resolución que esperás viene acompañada de paz y estabilidad duradera.',
-    'No hay sombras en tu lectura hoy; aprovechá la claridad para definir tu rumbo.',
-    'La sabiduría de tu recorrido pasado hoy se convierte en la llave de tu éxito futuro.',
-    'Tirada expansiva: todo lo que toque tu intención bajo esta energía tiende a crecer.',
-    'Tus convicciones encuentran respaldo en las cartas; seguí tu intuición sin dudar.',
-    'Una corriente de prosperidad y claridad atraviesa la respuesta a tu consulta.',
-    'El universo te responde con un "sí" contundente a través de esta combinación.',
-    'Siente la tranquilidad de estar respaldado por una energía de concreción absoluta.',
-    'Las piezas del rompecabezas encajan con soltura en tu pasado, presente y futuro.',
-    'Una lectura caracterizada por la armonía interna y la fluidez en el entorno.',
-    'La claridad que buscabas finalmente se hace presente de forma transparente.',
-    'El tiempo trabaja a tu favor; observá cómo los acontecimientos se ordenan solos.',
-    'Fuerza, luz y determinación: tres virtudes que hoy coronan tu lectura.',
-    'Un escenario donde la duda no tiene lugar; confiá en el proceso que iniciaste.',
-    'Las energías te acompañan para dar ese salto que venías postergando.',
-    'Excelente síntesis que augura un cierre de ciclo victorioso y un gran comienzo.',
-    'Caminás sobre suelo firme; lo que pensaste tiene bases reales para prosperar.',
-    'Tu energía creadora está en su punto máximo; usala a tu favor hoy.',
-    'Nada de lo que te preocupaba tiene peso real frente a la luz de esta lectura.',
-    'Un mensaje de esperanza activa: tenés el control y el entorno te apoya.',
-    'Tirada luminosa que te recuerda el inmenso potencial que tenés para resolver esto.',
-    'Todo está servido para que des el paso con tranquilidad y absoluta certeza.'
-  ],
-  2: [
-    'La balanza se inclina a tu favor, aunque hay un punto que todavía pide atención.',
-    'Vas por buen camino, con un matiz que conviene no perder de vista.',
-    'Predomina la energía favorable, pero un detalle exige tu lucidez y paciencia.',
-    'El balance general es positivo, aunque el proceso requerirá de un pequeño ajuste.',
-    'Hay buen viento a favor, solo asegurate de resolver lo que todavía genera fricción.',
-    'Las perspectivas son buenas; no permitas que un pequeño obstáculo opaque tu avance.',
-    'Avanzás con paso firme, pero la lectura te pide no desatender los pequeños detalles.',
-    'El panorama es mayormente claro, siempre que estés dispuesto a integrar la lección pendiente.',
-    'Llevás ventaja en esta situación, pero conviene moverte con observación consciente.',
-    'El impulso es favorable: escuchá la advertencia de la carta menos cómoda y seguí adelante.',
-    'Un camino con grandes posibilidades, donde el único límite será tu propia precaución.',
-    'Tenés la mayor parte del terreno ganado, solo resta afinar un aspecto puntual.',
-    'La energía te apoya, pero te exige actuar con madurez ante el matiz que aparece invertido.',
-    'Es una lectura positiva que te recuerda que todo logro requiere un mínimo de estrategia.',
-    'Hay un balance saludable en tu consulta, con un llamado a la responsabilidad personal.',
-    'Gran parte de la tensión se disipa, dejando al descubierto una oportunidad real.',
-    'Avanzá con seguridad, pero manteniendo los pies bien puestos sobre la tierra.',
-    'El éxito de lo que pensaste depende de que no ignores esa pequeña llamada de atención.',
-    'Las cartas muestran avances reales, aunque el ritmo sea un poco más pausado de lo previsto.',
-    'Tenés las de ganar; solo cuidá dónde ponés tu energía para no dispersarte.',
-    'La dirección es la correcta, pero el universo te pide pulir un detalle antes de saltar.',
-    'Un panorama fértil que requiere que atiendas un asunto pendiente del proceso.',
-    'Cuentas con buen respaldo energético; usá la cautela solo donde sea necesario.',
-    'La tendencia es de crecimiento, siempre y cuando no fuerces la pieza que no encaja.',
-    'Buenas noticias en lo general, con una valiosa lección de aprendizaje en el medio.',
-    'Tenés el timón de la situación, solo esquivá la pequeña marejada que señala la lectura.',
-    'El mapa es claro a tu favor; usá la advertencia presente como tu mejor herramienta.',
-    'Hay mucha luz en tu consulta, solo cuidá de no tropezar por exceso de confianza.',
-    'Una lectura noble que te invita a corregir un hábito antes de celebrar el resultado.',
-    'Avanzás hacia la meta, con la recomendación de ajustar una actitud o pensamiento.',
-    'El resultado pinta bien; no dejes que la impaciencia arruine la preparación.',
-    'Un matiz de duda no logra opacar la gran fuerza constructiva que te respalda.',
-    'Llevás las de ganar si sabés escuchar el pequeño aviso que te da el universo hoy.',
-    'La balanza juega de tu lado: mantené la calma para resolver el detalle flojo.',
-    'Progreso seguro, condicionado a que le des tiempo a lo que aún debe madurar.',
-    'Hay claridad en el horizonte, solo protegete de distracciones menores en el camino.',
-    'Cuentas con los recursos necesarios; atendé la llamada de cautela y triunfarás.',
-    'Una lectura amiga que te felicita por lo logrado pero te pide afinar la puntería.',
-    'El viento sopla a tu favor, solo ajustá bien las velas para no perder el rumbo.',
-    'Buenas posibilidades de concreción; no descuides tu paz mental en el proceso.',
-    'Casi todo está alineado; poné el último esfuerzo en sanar ese pequeño bloqueo.',
-    'Un trayecto mayormente armónico donde la prudencia será tu mejor aliada.',
-    'Hay fuerza de avance; solo estate atento a no repetir un error del pasado.',
-    'Un panorama promisorio que demanda un toque de pragmatismo y cabeza fría.',
-    'Aprovechá la buena racha sin ignorar el único semáforo amarillo de la lectura.',
-    'Caminás hacia algo bueno; que la prisa no te haga pasar por alto los detalles.',
-    'Tu intención es fuerte y viable; corregí el rumbo en lo pequeño y todo fluirá.',
-    'Un escenario positivo que te premia si actuás con la madurez necesaria.',
-    'Tenés la luz a tu favor, solo usá la sombra momentánea para reflexionar.',
-    'Grandes probabilidades de éxito si atendés ese punto que pide cuidado.'
-  ],
-  1: [
-    'Hay más tensión que calma en esta lectura — es una invitación a moverte con cuidado.',
-    'El desafío pesa más que la calma hoy: prestale atención a lo que te cuesta soltar.',
-    'Esta combinación te pide precaución antes de tomar decisiones apresuradas.',
-    'Atravesás un tramo de revisión; no te apures a forzar resultados que necesitan tiempo.',
-    'Hay matices complejos en tu consulta. Observá bien dónde estás poniendo tu energía.',
-    'La lectura te sugiere paciencia: hay obstáculos que requieren estrategia más que impulso.',
-    'No es un momento de avance a ciegas, sino de ajustar el rumbo y reevaluar expectativas.',
-    'Hay llamadas de atención claras en tus cartas. Escuchá lo que el proceso te exige corregir.',
-    'El escenario presenta cierta resistencia; cuidá tus recursos y tus palabras hoy.',
-    'Una lectura que invita a la moderación. Protegé tu calma mientras se acomodan las piezas.',
-    'Se observan nudos energéticos que conviene desatar con calma antes de actuar.',
-    'La lectura te pide que no te engañes: hay un aspecto de esto que requiere coraje para ser visto.',
-    'Momento de ser honesto con vos mismo sobre lo que realmente podés controlar.',
-    'Hay más aprendizaje en la espera que en la acción impulsiva durante este tránsito.',
-    'Un panorama que exige prudencia mental y emocional para no desgastar tus energías.',
-    'El terreno está resbaladizo para esta consulta; da pasos cortos y bien calculados.',
-    'No interpretes la resistencia como un fracaso, sino como un llamado a recalibrar.',
-    'Es una lectura de alerta temprana: prevení conflictos antes de que se profundicen.',
-    'Hay aspectos de tu pasado o presente que están frenando la proyección a futuro.',
-    'Cuidá tus fronteras y tus límites; la energía disponible pide resguardo y prudencia.',
-    'Una invitación a desacelerar para evaluar si el camino que elegiste sigue siendo el mejor.',
-    'El universo te está marcando un desvío necesario para evitar un tropezón mayor.',
-    'Aceptá los matices difíciles de hoy como información valiosa para fortalecerte.',
-    'Tirada de paciencia activa: observá mucho, hablá poco y decidí con cabeza fría.',
-    'Las respuestas no están afuera en este momento; resolvé primero la fricción interna.',
-    'Avanzar a la fuerza bajo este clima astral solo generará más desgaste.',
-    'Atendé los llamados de atención antes de dar el siguiente paso en este asunto.',
-    'Hay aspectos ocultos o no resueltos que piden tu luz antes de continuar.',
-    'La energía dominante te aconseja mantener un perfil bajo por unos días.',
-    'No fuerces puertas que hoy están trabadas; buscá la enseñanza en la espera.',
-    'Un momento de prueba donde la templanza será tu mayor virtud.',
-    'Protegé tu foco: hay demasiadas distracciones o interferencias en el entorno.',
-    'Se requiere una reestructuración de tu idea antes de llevarla a la práctica.',
-    'Observá con lupa lo que estás dando por sentado; hay detalles que se te escapan.',
-    'La incomodidad que transmite la lectura es una brújula para proteger tus emociones.',
-    'Un freno oportuno que te salva de cometer una equivocación por ansiedad.',
-    'Priorizá la estrategia sobre la emoción primaria al pensar en este tema.',
-    'Hay resistencia en el ambiente; no es momento de confrontar sino de resguardarse.',
-    'Revisá tus verdaderas motivaciones respecto a esta consulta antes de actuar.',
-    'El camino presenta curvas cerradas: bajá la velocidad y observá el entorno.',
-    'Tu intuición te advierte algo a través de estas cartas; no la ignores.',
-    'El desafío es claro, pero tenés la capacidad de superarlo si no te precipitás.',
-    'Momento de poner orden en tu interior antes de buscar respuestas afuera.',
-    'Hay pérdidas de energía innecesarias; reevaluá dónde estás invirtiendo tu tiempo.',
-    'La lectura te invita a soltar la rigidez para adaptarte a lo que se presenta.',
-    'Un tránsito que exige cautela, madurez y mucha honestidad brutal con vos mismo.',
-    'No te desanimes por los frenos; usalos como tiempo a favor para afinar tu plan.',
-    'Cuidá lo que compartís con los demás respecto a este pensamiento por el momento.',
-    'La marejada está un poco alta; esperá a que el agua se aclare para decidir.',
-    'Un llamado a la prudencia que, si lo escuchás a tiempo, te ahorrará problemas.'
-  ],
-  0: [
-    'Las tres cartas coinciden en pedirte pausa y cuidado — no es un día para forzar nada.',
-    'Es una lectura que llama a la introspección más que a la acción. Escuchate.',
-    'Hay mucha resistencia en la energía actual. El mejor movimiento hoy es parar y observar.',
-    'El universo te pide freno de mano: revalida tu intención antes de dar el próximo paso.',
-    'Momento de repliegue y cuidado personal. Evitá tomar decisiones drásticas hoy.',
-    'La lectura indica un bloqueo transitorio. No te obstines en empujar lo que está cerrado.',
-    'Tiempos de silencio y reflexión interna. La claridad llegará cuando bajes la guardia.',
-    'Hay incomodidad o fricción en el ambiente respecto a esta consulta. Buscá tu centro primero.',
-    'Las cartas sugieren que la situación aún no está madura para resolverse afuera.',
-    'Aceptá la pausa como una protección, no como un castigo. Mañana habrá otra perspectiva.',
-    'Un llamado directo a soltar el control sobre aquello que hoy no podés modificar.',
-    'La lectura refleja agotamiento o desorientación; priorizá tu descanso y tu paz.',
-    'Cerrá la puerta a la impaciencia: forzar las cosas bajo esta energía solo traerá frustración.',
-    'Es un momento de siembra invisible, no de cosecha. Permitile al tiempo hacer su parte.',
-    'Cuidá tu energía vital y no te expongas a discusiones o movimientos innecesarios.',
-    'Las tres cartas se muestran reticentes; tómatelo como una tregua para recargar fuerzas.',
-    'No es momento de buscar respuestas afuera, sino de guardar silencio y sanar por dentro.',
-    'Hay una niebla transitoria en tu consulta; dejá que el polvo baje antes de caminar.',
-    'El bloqueo que sentís es una señal de protección: no todo lo que deseamos nos conviene ya.',
-    'Tirada de recogimiento absoluto. Meditá sobre lo que pensaste sin la urgencia de resolverlo.',
-    'Un freno de mano saludable para evitar que tropieces con viejas estructuras.',
-    'Retírate un paso hacia atrás para ver la escena completa cuando vuelva la luz.',
-    'La energía sugiere replantearte la pregunta desde una perspectiva totalmente nueva.',
-    'No hay prisa que valga cuando la marea está alta. Esperá a que el mar se calme.',
-    'Respirá profundo y soltá la exigencia por hoy. El universo está reacomodando las fichas.',
-    'Bloqueo absoluto en la energía actual: congelá las decisiones sobre este tema por hoy.',
-    'No intentes abrir la puerta a la fuerza; el tiempo revelará el momento oportuno.',
-    'Una lectura sombría que te protege de actuar en un momento completamente adverso.',
-    'Desconectá de la preocupación; forzar una solución hoy solo empeorará el nudo.',
-    'Hay una desconexión entre lo que querés y lo que el entorno puede ofrecerte hoy.',
-    'Plena señal de Stop astral: la mejor acción ante esta consulta es el no-hacer.',
-    'Retírate al refugio de tu serenidad; el ruido afuera no te dejará escuchar la verdad.',
-    'Tirada de resguardo total: protegé tu corazón, tu dinero y tus planes por el momento.',
-    'Nada de lo que intentes hoy en esta dirección dará el fruto que estás buscando.',
-    'Un llamado de la vida a revisar si este deseo nace de tu ser o de tu ego.',
-    'Las energías están cruzadas; postergá cualquier conversación importante sobre esto.',
-    'Aceptá el estancamiento de hoy como un descanso necesario para tu mente.',
-    'El panorama está cerrado por ahora; no intentes ver lo que todavía no se reveló.',
-    'Hay patrones repetitivos pesados en esta consulta; rompelos deteniendo tu marcha.',
-    'No gastes tus fuerzas en remar contra la corriente; dejá ir el control.',
-    'La respuesta no está lista porque la situación aún necesita madurar en la sombra.',
-    'Un silencio necesario del universo para que reevalúes si realmente querés esto.',
-    'Suelto y confío: hacé de esa frase tu mantra de hoy ante esta lectura difícil.',
-    'Cuidá tus energías; la fricción en las cartas indica un ambiente hostil para tu idea.',
-    'El universo puso un obstáculo temporal para protegerte de un resultado indeseado.',
-    'Momento de repliegue estratégico: no es cobardía, es sabiduría para no desgastarse.',
-    'Evitá firmar, decidir o confrontar bajo el clima pesado de esta combinación.',
-    'El estancamiento es solo externo; aprovechá para hacer el trabajo de limpieza interior.',
-    'Resguardá tus planes en secreto hasta que el clima astral vuelva a despejarse.',
-    'Mañana el panorama será distinto; hoy simplemente descansá y soltá la carga.'
-  ]
-};
-
-    const spreadEl = document.getElementById('tarot-spread');
-    const hintEl = document.getElementById('tarot-hint');
-    const statusEl = document.getElementById('tarot-status');
-    const readingEl = document.getElementById('tarot-reading');
-
-    if (!spreadEl || !TAROT_ARCANA) return;
-
-    const STORAGE_KEY = 'tarotDailySpread';
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    let revealed = false;
-
-    function todayKey() {
-      return new Date().toDateString(); // fecha local del navegador
-    }
-
-    function getStoredSpread() {
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (!raw) return null;
-        const data = JSON.parse(raw);
-        if (data.date !== todayKey()) return null; // es de otro día
-        if (!Array.isArray(data.cards) || data.cards.length !== 3) return null;
-        return data;
-      } catch (e) {
-        return null;
-      }
-    }
-
-    function storeSpread(cards, synthesisIndex) {
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({
-          date: todayKey(), cards, synthesisIndex
-        }));
-      } catch (e) { /* localStorage no disponible: no persiste, no rompe nada */ }
-    }
-
-    // Punto de reemplazo futuro: hoy resuelve local, mañana puede hacer
-    // fetch('/api/tarot/draw') y devolver { cards: [{cardId,reversed} x3], synthesisIndex }.
-function drawTodaySpread() {
-  const existing = getStoredSpread();
-  if (existing) return Promise.resolve(existing);
-
-  // 3 cartas distintas (sin repetir), cada una derecha o invertida al azar.
-  const shuffled = [...TAROT_ARCANA].sort(() => Math.random() - 0.5);
-  const cards = shuffled.slice(0, 3).map(c => ({
-    cardId: c.id,
-    reversed: Math.random() < 0.5
-  }));
-
-  // Leemos la tirada anterior del localStorage para no repetir la frase de cierre
-  let lastIndex = null;
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      lastIndex = parsed.synthesisIndex;
-    }
-  } catch (e) { /* ignore */ }
-
-  // Elegimos un índice al azar asegurando que no sea el mismo de ayer
-  // y que busque dentro del total de frases disponibles (50 por categoría)
-  let synthesisIndex;
-  const maxOptions = SYNTHESIS[0].length; 
-  do {
-    synthesisIndex = Math.floor(Math.random() * maxOptions);
-  } while (synthesisIndex === lastIndex && maxOptions > 1);
-
-  storeSpread(cards, synthesisIndex);
-  return Promise.resolve({ date: todayKey(), cards, synthesisIndex });
+/* =========================================================
+   Silvana Gorocito — Terapeuta Holística / Masajista
+   estilos.css
+   ========================================================= */
+
+/* ---------- Houdini (para la animación aurora del hero) ---------- */
+@property --blink-opacity {
+  syntax: "<number>";
+  inherits: false;
+  initial-value: 1;
+}
+@keyframes blink-animation {
+  0%, 100% { opacity: var(--blink-opacity, 1); }
+  50% { opacity: 0; }
 }
 
-    // Arma los 3 slots (posición + carta) dentro de #tarot-spread.
-    function buildSpread() {
-      spreadEl.innerHTML = '';
-      POSITIONS.forEach((pos, i) => {
-        const slot = document.createElement('div');
-        slot.className = 'tarot-slot';
-        slot.dataset.index = String(i);
-        slot.innerHTML =
-          '<span class="tarot-position-label">' + pos.label + '</span>' +
-          '<button type="button" class="tarot-card-single" id="tarot-card-' + i + '" aria-label="Revelar carta: ' + pos.label + '">' +
-            '<div class="tarot-card-inner">' +
-              '<div class="tarot-face tarot-face-back">' +
-                '<div class="tarot-face-clip">' +
-                  '<img src="./assets/astrales/dorso.jpg" alt="" onerror="this.remove()">' +
-                '</div>' +
-              '</div>' +
-              '<div class="tarot-face tarot-face-front">' +
-                '<div class="tarot-face-clip">' +
-                  '<span class="tarot-front-number" id="tarot-front-number-' + i + '"></span>' +
-                  '<span class="tarot-front-art" id="tarot-front-art-' + i + '"></span>' +
-                  '<span class="tarot-front-name" id="tarot-front-name-' + i + '"></span>' +
-                  '<span class="tarot-front-orientation" id="tarot-front-orientation-' + i + '"></span>' +
-                '</div>' +
-              '</div>' +
-            '</div>' +
-          '</button>';
-        spreadEl.appendChild(slot);
-      });
-    }
+/* ---------- Base ---------- */
+:root {
+  --navy: #0b3c6e;
+  --navy-soft: #1a4d85;
+  --ink: #17253a;
+  --paper: #ffffff;
+  --paper-soft: #f7f8fa;
+  --line: #e2e6ec;
+  --halo-cyan: #6fe3f0;
 
-    function renderCardFace(i, card, reversed) {
-      const btn = document.getElementById('tarot-card-' + i);
-      document.getElementById('tarot-front-number-' + i).textContent = card.numeral;
-      document.getElementById('tarot-front-name-' + i).textContent = card.name;
-      document.getElementById('tarot-front-orientation-' + i).textContent = reversed ? 'Invertida' : 'Derecha';
-      document.getElementById('tarot-front-art-' + i).innerHTML =
-        '<img src="' + card.image + '" alt="' + card.name + '" ' +
-        'onerror="this.replaceWith(Object.assign(document.createElement(\'span\'),{textContent:\'✦\'}))">';
-      btn.classList.toggle('tarot-reversed', reversed);
-    }
+  --stripe-color: #fff;
+  --bg: var(--stripe-color);
 
-    function buildReadingHTML(cards, synthesisIndex) {
-      let constructiveCount = 0;
-      let html = '';
+  --font-serif: Georgia, 'Iowan Old Style', 'Palatino Linotype', serif;
+  --font-sans: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+}
 
-      cards.forEach((draw, i) => {
-        const card = TAROT_ARCANA[draw.cardId];
-        const data = draw.reversed ? card.reversed : card.upright;
-        if (data.energy === 'constructiva') constructiveCount++;
+* { box-sizing: border-box; }
 
-        html +=
-          '<div class="tarot-reading-card">' +
-            '<p class="tarot-reading-position">' + POSITIONS[i].label + '</p>' +
-            '<span class="tarot-reading-title">' + card.numeral + ' · ' + card.name + '</span>' +
-            '<span class="tarot-reading-orientation">' + (draw.reversed ? 'Invertida' : 'Derecha') + '</span>' +
-            '<p class="tarot-reading-meaning">' + data.meaning + '</p>' +
-            '<p class="tarot-reading-desc">' + data.description + '</p>' +
-          '</div>';
-      });
+html { scroll-behavior: smooth; }
 
-      const synthesisText = SYNTHESIS[constructiveCount][synthesisIndex];
-      html +=
-        '<div class="tarot-reading-synthesis">' +
-          '<p class="tarot-reading-synthesis-label">En conjunto</p>' +
-          '<p class="tarot-reading-synthesis-text">' + synthesisText + '</p>' +
-        '</div>' +
-        '<span class="tarot-next">Volvé mañana para descubrir una nueva tirada.</span>';
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--font-sans);
+  color: var(--ink);
+  background: var(--paper);
+  -webkit-font-smoothing: antialiased;
+}
 
-      return html;
-    }
+img, svg { max-width: 100%; }
 
-    function showReading(cards, synthesisIndex) {
-      readingEl.innerHTML = buildReadingHTML(cards, synthesisIndex);
-      readingEl.hidden = false;
-      requestAnimationFrame(() => readingEl.classList.add('visible'));
-    }
+a { color: inherit; }
 
-    function revealSpread(cards, synthesisIndex, animated) {
-      revealed = true;
-      hintEl.textContent = '';
+h1, h2, h3 {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  margin: 0;
+}
 
-      cards.forEach((draw, i) => {
-        const card = TAROT_ARCANA[draw.cardId];
-        renderCardFace(i, card, draw.reversed);
-        const btn = document.getElementById('tarot-card-' + i);
-        btn.classList.add('tarot-revealed');
-      });
+section { position: relative; }
 
-      if (animated && !prefersReducedMotion) {
-        // Se giran una por una, con una leve pausa entre cada una.
-        cards.forEach((draw, i) => {
-          setTimeout(() => {
-            document.getElementById('tarot-card-' + i).classList.add('tarot-flipped');
-          }, i * 220);
-        });
-        setTimeout(() => showReading(cards, synthesisIndex), cards.length * 220 + 950);
-      } else {
-        cards.forEach((draw, i) => {
-          document.getElementById('tarot-card-' + i).classList.add('tarot-flipped');
-        });
-        showReading(cards, synthesisIndex);
-      }
-    }
+.container {
+  width: min(1100px, 92%);
+  margin: 0 auto;
+}
 
-    buildSpread();
+/* =========================================================
+   INTRO — animación obligatoria del logo al ingresar
+   ========================================================= */
+#intro-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: var(--paper);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.8s ease;
+}
 
-    // ---- Carrusel mobile: una carta grande al centro, dos espiando a los
-    // costados. En desktop este bloque no hace nada visible (la media
-    // query que activa el layout absoluto no aplica ahí). ----
-    const COVERFLOW_QUERY = window.matchMedia('(max-width: 640px)');
-    let activeIndex = 1; // arranca con la carta del medio al centro
+#intro-overlay.oculto {
+  opacity: 0;
+  pointer-events: none;
+}
 
-    function applyCoverflowLayout() {
-      const coverflow = COVERFLOW_QUERY.matches;
-      spreadEl.classList.toggle('tarot-spread--coverflow', coverflow);
+body.cargando {
+  overflow: hidden;
+}
 
-      spreadEl.querySelectorAll('.tarot-slot').forEach((slot) => {
-        if (!coverflow) {
-          slot.style.transform = '';
-          slot.style.zIndex = '';
-          slot.style.opacity = '';
-          return;
-        }
-        const i = Number(slot.dataset.index);
-        const delta = i - activeIndex; // -2..2 posible con 3 cartas
-        const absDelta = Math.min(Math.abs(delta), 2);
-        const scale = 1 - absDelta * 0.2;
-        const tx = delta * 62;
-        const rot = delta * 5;
-        slot.style.transform = 'translate(calc(-50% + ' + tx + 'px), 0) scale(' + scale + ') rotate(' + rot + 'deg)';
-        slot.style.zIndex = String(10 - absDelta);
-        slot.style.opacity = absDelta === 0 ? '1' : (absDelta === 1 ? '0.82' : '0.5');
-      });
-    }
+/* ---- Logo animado, embebido directamente (no en iframe) ---- */
+.logo-intro {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
 
-    applyCoverflowLayout();
-    // Si el usuario rota el celular o cruza el breakpoint, reacomodar.
-    if (COVERFLOW_QUERY.addEventListener) {
-      COVERFLOW_QUERY.addEventListener('change', applyCoverflowLayout);
-    }
-    window.addEventListener('resize', () => {
-      if (COVERFLOW_QUERY.matches) applyCoverflowLayout();
-    });
+.logo-intro .stage {
+  width: min(70vmin, 460px);
+}
 
-    // Al cargar: si ya se tiró la tirada hoy, mostrarla directo (sin animación).
-    const existingSpread = getStoredSpread();
-    if (existingSpread) {
-      revealSpread(existingSpread.cards, existingSpread.synthesisIndex, false);
-    }
+.logo-intro .logo-svg {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
 
-    spreadEl.addEventListener('click', (e) => {
-      const btn = e.target.closest('.tarot-card-single');
-      if (!btn) return;
-      const slot = btn.closest('.tarot-slot');
-      const i = Number(slot.dataset.index);
+.logo-intro .logo-svg .m {
+  fill: #ffffff;
+  fill-opacity: 0;
+  animation: mask-fill 0.42s ease forwards var(--fill-delay);
+}
+@keyframes mask-fill { to { fill-opacity: 1; } }
 
-      // En mobile, si tocaste una carta lateral, primero la centramos —
-      // recién un segundo toque (ya en el centro) revela la tirada.
-      if (COVERFLOW_QUERY.matches && i !== activeIndex) {
-        activeIndex = i;
-        applyCoverflowLayout();
-        return;
-      }
+.logo-intro .logo-svg .p {
+  fill: none;
+  stroke: var(--navy);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: var(--len);
+  stroke-dashoffset: var(--len);
+  stroke-opacity: 0.9;
+  animation-name: draw-path, fade-stroke;
+  animation-duration: var(--dur), 0.4s;
+  animation-timing-function: cubic-bezier(.45,0,.55,1), ease;
+  animation-delay: var(--delay), var(--stroke-fade-delay);
+  animation-fill-mode: forwards, forwards;
+}
+@keyframes draw-path { to { stroke-dashoffset: 0; } }
+@keyframes fade-stroke { to { stroke-opacity: 0; } }
 
-      if (revealed) return; // ya centrada y ya revelada: no hay más acción
+@media (prefers-reduced-motion: reduce) {
+  .logo-intro .logo-svg .m {
+    animation: none !important;
+    fill-opacity: 1 !important;
+  }
+  .logo-intro .logo-svg .p {
+    animation: none !important;
+    stroke-opacity: 0 !important;
+    stroke-dashoffset: 0 !important;
+  }
+  .halo-container::before,
+  .halo-container::after,
+  .estrella-norte {
+    animation: none !important;
+    opacity: 0.6 !important;
+    transform: scale(1) !important;
+  }
+}
 
-      statusEl.textContent = '';
-      spreadEl.querySelectorAll('.tarot-card-single').forEach(b => b.disabled = true);
+/* ---- Separador propio (hamsahand.png), reemplaza a la estrella ---- */
+.ornamento {
+  display: block;
+  background-image: url('assets/img/separadores/hamsahand.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
 
-      drawTodaySpread()
-        .then(({ cards, synthesisIndex }) => {
-          revealSpread(cards, synthesisIndex, true);
-          spreadEl.querySelectorAll('.tarot-card-single').forEach(b => b.disabled = false);
-        })
-        .catch(() => {
-          statusEl.classList.add('error');
-          statusEl.textContent = 'No pudimos revelar tu lectura. Intentá nuevamente.';
-          spreadEl.querySelectorAll('.tarot-card-single').forEach(b => b.disabled = false);
-        });
-    });
-  })();
-  </script>
+.ornamento--sm { width: 16px; height: 16px; }
+.ornamento--md { width: 34px; height: 34px; margin: 0 auto 1.4rem; }
+.ornamento--lg { width: 52px; height: 52px; margin: 0 auto; }
 
-</body>
-</html>
+/* =========================================================
+   NAV
+   ========================================================= */
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.1rem 0;
+  background: rgba(255,255,255,0);
+  transition: background 0.3s ease, box-shadow 0.3s ease, padding 0.3s ease;
+}
 
+.nav.scrolled {
+  background: rgba(255,255,255,0.9);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 1px 0 var(--line);
+  padding: 0.7rem 0;
+}
+
+.nav .container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.nav__brand {
+  font-family: var(--font-serif);
+  font-size: 1.1rem;
+  letter-spacing: 0.03em;
+  color: var(--navy);
+  text-decoration: none;
+}
+
+.nav__links {
+  display: flex;
+  gap: 1.6rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 0.92rem;
+}
+
+.nav__links a {
+  text-decoration: none;
+  color: var(--ink);
+  opacity: 0.8;
+  transition: opacity 0.2s ease;
+}
+
+.nav__links a:hover { opacity: 1; }
+
+.nav__cta {
+  border: 1px solid var(--navy);
+  color: var(--navy) !important;
+  padding: 0.45rem 1rem;
+  border-radius: 999px;
+  font-size: 0.85rem !important;
+  opacity: 1 !important;
+}
+
+.nav__toggle {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 1.4rem;
+  color: var(--navy);
+  cursor: pointer;
+}
+
+/* =========================================================
+   HERO — versión "aurora" en blanco, adaptada del codepen
+   ========================================================= */
+.wrapper {
+  width: 100%;
+  height: auto;
+  position: relative;
+}
+
+.hero {
+  width: 100%;
+  height: 100%;
+  min-height: 100vh;
+  position: relative;
+  display: flex;
+  place-content: center;
+  place-items: center;
+  /* contain aísla el repintado del hero: los filtros/blends de acá
+     adentro ya no fuerzan recalcular el resto de la página en cada frame */
+  contain: paint;
+  --stripes: repeating-linear-gradient(
+    100deg,
+    var(--stripe-color) 0%,
+    var(--stripe-color) 7%,
+    transparent 10%,
+    transparent 12%,
+    var(--stripe-color) 16%
+  );
+  --rainbow: repeating-linear-gradient(
+    100deg,
+    #60a5fa 10%,
+    #38bdf8 15%,
+    #60a5fa 20%,
+    #6fe3f0 25%,
+    #60a5fa 30%
+  );
+  background-image: var(--stripes), var(--rainbow);
+  background-size: 300%, 200%;
+  background-position: 50% 50%, 50% 50%;
+  filter: blur(6px) invert(100%);
+  mask-image: radial-gradient(ellipse at 100% 0%, black 40%, transparent 70%);
+}
+
+.hero::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 200%;
+  height: 100%;
+  background-image: var(--stripes), var(--rainbow);
+  background-size: 100%, 50%;
+  /* Antes esto animaba "background-position", que obliga al navegador a
+     repintar el gradiente en cada frame (no corre en GPU) y, combinado
+     con mix-blend-mode, era carísimo. Ahora animamos "transform" sobre
+     un elemento del doble de ancho: como el gradiente es repetible, se
+     ve exactamente igual pero el movimiento lo hace la GPU sin repintar
+     nada — la mejora de rendimiento más grande de todo el sitio. */
+  animation: smoothBg 60s linear infinite;
+  mix-blend-mode: difference;
+  will-change: transform;
+}
+
+@keyframes smoothBg {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+.content {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  place-content: center;
+  place-items: center;
+  flex-flow: column;
+  gap: 1.4rem;
+  text-align: center;
+  mix-blend-mode: difference;
+  filter: invert(1);
+  padding: 0 1.2rem;
+}
+
+.h1--scalingSize {
+  font-family: var(--font-serif);
+  font-size: clamp(2.6rem, 5vw + 1rem, 5.4rem);
+  position: relative;
+  letter-spacing: 0.01em;
+}
+
+.h1--scalingSize::before {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  background: white;
+  text-shadow: 0 0 1px #ffffff;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-color: white;
+  -webkit-mask: linear-gradient(#000 0 0) luminance;
+  mask: linear-gradient(#000 0 0) luminance, alpha;
+  /* backdrop-filter con blur es de lo más caro que existe en CSS: el
+     costo crece con el cuadrado del radio. Bajamos de 19px a 9px
+     (misma idea visual, mucho más barato de samplear en cada frame) */
+  backdrop-filter: blur(9px) brightness(12.5);
+  -webkit-text-stroke: 1px white;
+  display: flex;
+  margin: auto;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.hero-subtitle {
+  font-family: var(--font-sans);
+  font-size: clamp(0.95rem, 1vw + 0.7rem, 1.25rem);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  opacity: 0.9;
+}
+
+.hero-scroll {
+  margin-top: 0.6rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  font-size: 0.95rem;
+  padding: 0.7rem 1.4rem;
+  border: 1px dashed;
+  border-radius: 999px;
+}
+
+.hero-scroll .icon {
+  width: 1lh;
+  height: 1lh;
+  aspect-ratio: 1/1;
+  padding: 0.25em 0.35rem;
+  border-radius: 999px;
+  border: 1px dashed;
+  --blink-opacity: 1;
+  animation: blink-animation 2s ease-in-out infinite running;
+}
+
+.hero-scroll:hover .icon { animation-play-state: paused; }
+
+/* ---- sparkle sutil: puntitos de luz que titilan sobre el hero.
+   Va como capa propia (no dentro de .hero/.content) porque esas
+   usan mix-blend-mode: difference y filter: invert(1) — si el
+   sparkle entrara ahí, el blend le cambiaría el color. ---- */
+.hero-sparkle {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.sparkle-dot {
+  position: absolute;
+  left: var(--sx);
+  top: var(--sy);
+  width: var(--ss, 3px);
+  height: var(--ss, 3px);
+  border-radius: 50%;
+  background: #fff6d8;
+  box-shadow: 0 0 10px 2.5px rgba(255, 221, 110, 0.95);
+  opacity: 0;
+  animation: sparkle-twinkle 3.6s ease-in-out infinite;
+  animation-delay: var(--sd, 0s);
+}
+
+@keyframes sparkle-twinkle {
+  0%, 100% { opacity: 0; transform: scale(0.6); }
+  50%      { opacity: 1; transform: scale(1.3); }
+}
+
+/* campo de estrellas chicas de fondo: mismo espíritu que los
+   sparkles dorados, pero más sutiles, blanco-celestes y en mayor
+   cantidad — para simular un cielo estrellado detrás de la aurora */
+.star-dot {
+  position: absolute;
+  left: var(--sx);
+  top: var(--sy);
+  width: var(--ss, 1.6px);
+  height: var(--ss, 1.6px);
+  border-radius: 50%;
+  background: #eaf4ff;
+  box-shadow: 0 0 3px rgba(180, 220, 255, 0.75);
+  opacity: 0;
+  animation: star-twinkle var(--sdur, 3.4s) ease-in-out infinite;
+  animation-delay: var(--sd, 0s);
+}
+
+@keyframes star-twinkle {
+  0%, 100% { opacity: 0.12; transform: scale(0.8); }
+  50%      { opacity: 0.9;  transform: scale(1.15); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sparkle-dot,
+  .star-dot { animation: none; opacity: 0.5; }
+}
+
+/* ---- Rendimiento en mobile ----
+   Lo que de verdad pesaba no era tener mix-blend-mode/filter/backdrop-
+   filter (eso se compone una sola vez y es barato mientras nada cambie
+   arriba o abajo), sino que estaban debajo de una animación infinita
+   que forzaba recalcular TODO el grupo de blend en cada frame. Frenamos
+   esa animación (la causa real del consumo de GPU) y dejamos los
+   colores/efectos tal cual estaban — se ve exactamente igual, pero
+   estático en vez de animado. */
+@media (max-width: 768px) {
+  /* Movimiento sutil en vez de estático: mismo transform (GPU, sin
+     repintar), pero mucho más lento para que el navegador tenga que
+     recomponer el frame con mucha menos frecuencia por segundo. */
+  .hero::after {
+    animation-duration: 140s;
+  }
+
+  /* Dejamos solo ~15 de las 46 estrellas de fondo animando */
+  .star-dot:nth-child(n+16) { animation: none; opacity: 0.12; }
+
+  /* box-shadow animado no corre en GPU (repinta por CPU en cada frame);
+     con pocos elementos no pesa, pero en un GPU/CPU de gama muy baja
+     cada uno suma. Dejamos solo la mitad de los sparkles dorados. */
+  .sparkle-dot:nth-child(even) { animation: none; opacity: 0; }
+}
+
+/* =========================================================
+   SECCIONES GENERALES
+   ========================================================= */
+section.pad {
+  padding: 5.5rem 0;
+}
+
+.eyebrow {
+  font-size: 0.8rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--navy);
+  margin-bottom: 0.8rem;
+  display: block;
+  text-align: center; /* Centrado */
+}
+
+.section-title {
+  font-size: clamp(1.8rem, 2vw + 1.2rem, 2.6rem);
+  margin-bottom: 1rem;
+  color: var(--ink);
+  text-align: center; /* Centrado */
+}
+
+.section-lede {
+  max-width: 62ch;
+  color: #445064;
+  font-size: 1.05rem;
+  line-height: 1.7;
+  text-align: center;  /* Centrado del texto */
+  margin-left: auto;   /* Centrado del contenedor */
+  margin-right: auto;
+}
+
+/* ---------- Sobre mí ---------- */
+.about {
+  position: relative;
+  overflow: hidden;
+  background: var(--paper-soft);
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  isolation: isolate; /* que el z-index del fondo no se escape de la sección */
+  min-height: clamp(460px, 58vh, 680px); /* desktop: buen alto para que las franjas se vean */
+}
+
+/* Fondo en franjas verticales, atenuado, detrás del contenido */
+.about-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: flex;
+}
+
+.about-bg__franja {
+  flex: 1 1 0;
+  background-size: cover;
+  background-position: var(--pos, center);
+  filter: grayscale(35%) contrast(0.95);
+}
+
+/* Una imagen distinta por franja — reemplazá los nombres de archivo si querés otros */
+.about-bg__franja:nth-child(1) { background-image: url('assets/img/sobre-mi/franja-1.jpg'); }
+.about-bg__franja:nth-child(2) { background-image: url('assets/img/sobre-mi/franja-2.jpg'); }
+.about-bg__franja:nth-child(3) { background-image: url('assets/img/sobre-mi/franja-3.jpg'); }
+
+/* Velo por encima de las franjas para atenuarlas y que el texto siga siendo legible */
+.about-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--paper-soft);
+  opacity: 0.82; /* subí este número para atenuar más, bajalo para que se vean más las fotos */
+}
+
+.about .container {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  text-align: center;
+  place-items: center;
+}
+
+/* ---------- Servicios ---------- */
+.services {
+  position: relative;
+  overflow: hidden;
+  background: var(--paper);
+  isolation: isolate; /* que el fondo no se escape del recorte de la sección */
+}
+
+/* ---- Fondo dinámico por categoría (crossfade entre dos capas) ---- */
+.services-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.services-bg__layer {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  transform: scale(1.03); /* leve zoom para que el crossfade se sienta más suave */
+  filter: saturate(0.9);
+  transition: opacity 1s ease, transform 8s ease;
+}
+
+.services-bg__layer.visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* velo para atenuar la foto y que el texto/menú sigan legibles */
+.services-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--paper);
+  opacity: 0.86;
+  transition: opacity 0.6s ease;
+}
+
+.services-bg:has(.visible)::after {
+  opacity: 0.78; /* un poco menos tapado cuando sí hay foto, para que se note */
+}
+
+.services .container {
+  position: relative;
+  z-index: 1;
+}
+
+.services .head {
+  text-align: center;
+  max-width: 60ch;
+  margin: 0 auto 3rem;
+}
+
+/* =========================================================
+   MENÚ RADIAL DE TERAPIAS
+   ========================================================= */
+.menu-radial {
+  position: relative;
+  width: min(92vw, 720px);
+  aspect-ratio: 1 / 1;
+  margin: 2rem auto 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  --radio: 0px; /* se anima al abrir */
+}
+
+.menu-radial.abierto {
+  --radio: clamp(185px, 29vw, 265px);
+}
+
+/* ---- Botón central ---- */
+.menu-radial__nucleo {
+  position: relative;
+  z-index: 5;
+  width: clamp(120px, 22vw, 180px);
+  height: clamp(120px, 22vw, 180px);
+  border: 0;
+  padding: 0;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.menu-radial__icono {
+  position: relative;
+  z-index: 3;
+  width: 46%;
+  height: 46%;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 8px rgba(11,60,110,0.35));
+  transition: transform 0.3s ease;
+}
+
+.menu-radial__nucleo:hover .menu-radial__icono,
+.menu-radial__nucleo:focus-visible .menu-radial__icono {
+  transform: scale(1.06);
+}
+
+.menu-radial__nucleo:focus-visible {
+  outline: 2px solid var(--navy);
+  outline-offset: 6px;
+}
+
+/* =========================================================
+   NUEVO HALO DE CATEGORÍAS (Cyan + Estrella / Pulsación)
+   ========================================================= */
+
+/* Escena y posición central */
+.halo-escena {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Contenedor relativo para alojar el halo y la estrella */
+.halo-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  --halo-size: 120px;
+  /* 46px de blur en un box-shadow que además escala vía transform
+     obligaba a recalcular el blur en cada frame; con 24px se ve
+     prácticamente igual y sale mucho más barato */
+  --halo-blur: 24px;
+  --halo-spread: 5px;
+  contain: paint;
+}
+
+/* ---- 1. Anillos y Sombras de Pulsación (Halo Cyan) ----
+   Tamaño pensado para que, incluso en su punto de mayor opacidad,
+   el resplandor no llegue a tocar los íconos de las categorías.
+   En breakpoints móviles se achica junto con --radio (ver más abajo)
+   para que la distancia de seguridad se mantenga en pantallas chicas. */
+.halo-container::before,
+.halo-container::after {
+  content: '';
+  display: block;
+  position: absolute;
+  width: var(--halo-size);
+  height: var(--halo-size);
+  left: calc(var(--halo-size) / -2);
+  top: calc(var(--halo-size) / -2);
+  border-radius: 50%;
+  /* Esta animación corría siempre, infinita, aunque el menú radial
+     estuviera cerrado y el halo invisible (opacity:0 no detiene
+     animaciones). La pausamos por defecto y la activamos solo cuando
+     el menú realmente está abierto — así no gasta CPU/GPU "todo el
+     tiempo" como venía pasando. */
+  animation: GrowHalo 3s linear infinite;
+  animation-play-state: paused;
+  will-change: transform, opacity;
+}
+
+.menu-radial.abierto .halo-container::before,
+.menu-radial.abierto .halo-container::after,
+.menu-radial.abierto .estrella-norte {
+  animation-play-state: running;
+}
+
+.halo-container::before {
+  box-shadow: 0px 0px var(--halo-blur) var(--halo-spread) var(--halo-cyan, #6fe3f0);
+}
+
+.halo-container::after {
+  box-shadow: inset 0px 0px var(--halo-blur) var(--halo-spread) var(--halo-cyan, #6fe3f0);
+}
+
+/* ---- 2. Destello Estrella del Norte en el Centro, sincronizado ---- */
+.estrella-norte {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  --estrella-size: 56px;
+  width: var(--estrella-size);
+  height: var(--estrella-size);
+  margin-left: calc(var(--estrella-size) / -2);
+  margin-top: calc(var(--estrella-size) / -2);
+  pointer-events: none;
+  animation: GrowHalo 3s linear infinite;
+  animation-play-state: paused;
+  background-size: 14px 14px;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+/* Cruz/Rayos de la Estrella */
+.estrella-norte::before,
+.estrella-norte::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #ffffff;
+  border-radius: 2px;
+}
+
+.estrella-norte::before {
+  width: 100%;
+  height: 1.5px;
+  box-shadow: 0 0 10px 1.5px var(--halo-cyan, #6fe3f0);
+}
+
+.estrella-norte::after {
+  width: 1.5px;
+  height: 100%;
+  box-shadow: 0 0 10px 1.5px var(--halo-cyan, #6fe3f0);
+}
+
+/* ---- Keyframes Animación Sincronizada (halo + estrella) ---- */
+@keyframes GrowHalo {
+  0% {
+    transform: scale(0.1);
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
+/* ---- Los 10 ítems distribuidos en círculo ---- */
+.menu-radial__items {
+  position: absolute;
+  inset: 0;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  z-index: 4;
+}
+
+.menu-radial__item {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(var(--angle)) translateX(var(--radio)) rotate(calc(-1 * var(--angle)));
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.55s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.35s ease;
+  transition-delay: calc(var(--i, 0) * 35ms);
+}
+
+.menu-radial.abierto .menu-radial__item {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.menu-radial__link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: clamp(96px, 15vw, 130px);
+  min-height: clamp(56px, 8vw, 68px);
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  font-family: var(--font-sans);
+  text-align: center;
+}
+
+/* Recuadro de texto: reemplaza al ícono, pensado para ser bien legible */
+.menu-radial__label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 100%;
+  padding: 0.6rem 0.7rem;
+  border-radius: 14px;
+  background: var(--paper);
+  border: 1.5px solid var(--line);
+  box-shadow: 0 4px 14px -8px rgba(11,60,110,0.3);
+  font-size: 0.86rem;
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--ink);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease, background 0.25s ease;
+}
+
+.menu-radial__link:hover .menu-radial__label,
+.menu-radial__link:focus-visible .menu-radial__label,
+.menu-radial__link.activo .menu-radial__label {
+  transform: translateY(-3px);
+  border-color: var(--navy-soft);
+  color: var(--navy);
+  /* pequeño brillo de color para dar contraste, sin repetir el halo del centro */
+  box-shadow: 0 0 0 3px rgba(96,165,250,0.15), 0 0 20px 2px rgba(96,165,250,0.4);
+}
+
+.menu-radial__link.activo .menu-radial__label {
+  background: var(--paper-soft);
+}
+
+/* ---- Panel con la descripción de la terapia elegida ---- */
+.menu-radial-panel {
+  max-width: 52ch;
+  margin: 2.2rem auto 0;
+  text-align: center;
+  background: var(--paper-soft);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 1.6rem 1.8rem;
+  animation: panelIn 0.3s ease;
+}
+
+.menu-radial-panel__icon {
+  display: inline-grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--navy);
+  color: var(--navy);
+  font-size: 1.1rem;
+  margin-bottom: 0.7rem;
+  overflow: hidden;
+}
+
+.menu-radial-panel__icon-img {
+  width: 60%;
+  height: 60%;
+  object-fit: contain;
+}
+
+.menu-radial-panel__title {
+  font-family: var(--font-serif);
+  font-size: 1.15rem;
+  margin-bottom: 0.4rem;
+  color: var(--ink);
+}
+
+.menu-radial-panel__text {
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: #56607a;
+  margin: 0;
+}
+
+@keyframes panelIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 480px) {
+  .menu-radial { margin-top: 1rem; }
+}
+
+/* ---- Menú radial en celulares: los "piso" en px de los clamp de arriba
+   no bajan lo suficiente en pantallas angostas y los ítems terminaban
+   saliéndose. Acá se recalculan con más peso en vw para que encojan
+   de verdad, manteniendo el mismo estilo/proporciones.
+
+   El radio (--radio) y el ancho de cada recuadro de texto están
+   calculados juntos, con la misma proporción que en desktop
+   (radio ≈ 1.9 × ancho del texto), para que a cualquier ancho de
+   pantalla quede el mismo margen entre textos vecinos y ninguno
+   se superponga con el de al lado. ---- */
+@media (max-width: 640px) {
+  .menu-radial.abierto {
+    --radio: clamp(96px, 33.5vw, 220px);
+  }
+
+  .menu-radial__link {
+    width: clamp(52px, 18vw, 118px);
+    min-height: clamp(42px, 9vw, 64px);
+  }
+
+  .menu-radial__label {
+    font-size: clamp(0.72rem, 1.4vw + 0.4rem, 0.85rem);
+    padding: clamp(0.35rem, 1vw, 0.55rem) clamp(0.4rem, 1vw, 0.6rem);
+  }
+
+  .menu-radial__nucleo {
+    width: clamp(84px, 28vw, 150px);
+    height: clamp(84px, 28vw, 150px);
+  }
+
+  .halo-container {
+    --halo-size: clamp(70px, 14vw, 95px);
+    --halo-blur: clamp(24px, 5vw, 36px);
+    --halo-spread: clamp(3px, 0.6vw, 4.5px);
+  }
+
+  .estrella-norte {
+    --estrella-size: clamp(34px, 8vw, 46px);
+  }
+}
+
+/* ---------- Testimonio / cita ---------- */
+.cita {
+  padding: 4.5rem 0;
+  text-align: center;
+}
+
+.cita blockquote {
+  margin: 0 auto;
+  max-width: 46ch;
+  font-family: var(--font-serif);
+  font-size: clamp(1.2rem, 1.4vw + 0.9rem, 1.7rem);
+  line-height: 1.5;
+  color: var(--navy);
+}
+
+.cita cite {
+  display: block;
+  margin-top: 1.1rem;
+  font-style: normal;
+  font-size: 0.85rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #7a8398;
+}
+
+/* ---------- Contacto ---------- */
+.contacto {
+  background: var(--ink);
+  color: #fff;
+}
+
+.contacto .container {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 3rem;
+  align-items: start;
+}
+
+.contacto .section-title { color: #fff; }
+.contacto .eyebrow { color: #9fd0ff; }
+.contacto .section-lede { color: #c6cede; }
+
+.contacto-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1.6rem;
+}
+
+.contacto-info a,
+.contacto-info span {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  text-decoration: none;
+  color: #fff;
+  font-size: 0.98rem;
+}
+
+.contacto-info .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #6fe3c4;
+  flex: none;
+}
+
+.btn-primario {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: #fff;
+  color: var(--ink);
+  text-decoration: none;
+  padding: 0.85rem 1.6rem;
+  border-radius: 999px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-top: 1.8rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-primario:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px -10px rgba(255,255,255,0.35);
+}
+
+.contacto-card {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 20px;
+  padding: 1.8rem;
+}
+
+.contacto-card h3 {
+  font-family: var(--font-serif);
+  font-size: 1.15rem;
+  margin-bottom: 1rem;
+}
+
+.contacto-lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  font-size: 0.9rem;
+  color: #d5dae6;
+}
+
+.contacto-lista li::before {
+  content: "· ";
+  color: #6fe3c4;
+}
+
+/* ---------- Footer ---------- */
+footer {
+  background: var(--ink);
+  border-top: 1px solid rgba(255,255,255,0.1);
+  color: #98a3ba;
+  padding: 1.6rem 0;
+  font-size: 0.82rem;
+}
+
+footer .container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+footer a {
+  color: #cfe8ff;
+  text-decoration: none;
+}
+
+/* =========================================================
+   REFLEXOLOGÍA PODAL
+   Chart interactivo de zonas reflejas del pie.
+   Reutiliza las variables globales (--navy, --halo-cyan, --paper, etc.)
+   ========================================================= */
+.reflexo {
+  background: var(--paper-soft);
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.reflexo .head {
+  text-align: center;
+  max-width: 60ch;
+  margin: 0 auto 2.2rem;
+}
+
+.reflexo-intro {
+  font-family: var(--font-sans);
+  font-size: 0.98rem;
+  line-height: 1.7;
+  color: #445064;
+  max-width: 54ch;
+  margin: 0 auto 1.6rem;
+}
+
+/* el protagonista de esta sección es el chart: el encabezado
+   queda como referencia chica, no como título dominante */
+.reflexo .eyebrow { font-size: 0.72rem; }
+.reflexo .section-title {
+  font-size: 1.15rem;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  color: var(--navy);
+  margin: 0;
+}
+
+.reflexo-chart {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.reflexo-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* ---- paleta de zonas: versión suavizada y coordinada con la
+   marca (en vez del arcoíris saturado del chart original) ---- */
+.reflexo-svg path[class] {
+  stroke: rgba(11, 60, 110, 0.35);
+  stroke-width: 0.6;
+  cursor: pointer;
+  transition: filter 0.2s ease, stroke-width 0.2s ease;
+}
+
+.reflexo-svg .head-brain      { fill: #e7c3d6; }
+.reflexo-svg .teeth-sinuses   { fill: #d9a8c4; }
+.reflexo-svg .eye             { fill: #b79bd0; }
+.reflexo-svg .ear             { fill: #8f8ecb; }
+.reflexo-svg .trapezius       { fill: #e2a15c; }
+.reflexo-svg .armpit          { fill: #6f93bf; }
+.reflexo-svg .lung-chest      { fill: #7fbcdd; }
+.reflexo-svg .arm             { fill: #6f93bf; }
+.reflexo-svg .shoulder        { fill: #a7bce0; }
+.reflexo-svg .liver           { fill: #e3b563; }
+.reflexo-svg .gall-bladder    { fill: #cbcf6a; }
+.reflexo-svg .spleen          { fill: #d98f5a; }
+.reflexo-svg .kidney          { fill: #eddb70; }
+.reflexo-svg .elbow           { fill: #7e93b8; }
+.reflexo-svg .leg             { fill: #6784a8; }
+.reflexo-svg .ascending-colon,
+.reflexo-svg .descending-colon{ fill: #b3835a; }
+.reflexo-svg .appendix,
+.reflexo-svg .rectum          { fill: #8a5a34; }
+.reflexo-svg .small-intestine { fill: #cf9a6c; }
+.reflexo-svg .sciatic-nerve   { fill: #eaa79b; }
+.reflexo-svg .lower-back      { fill: #f0b7a9; }
+.reflexo-svg .cervical-spine  { fill: #7e93c2; }
+.reflexo-svg .bladder,
+.reflexo-svg .ureter          { fill: #e6dc7e; }
+.reflexo-svg .duodenum        { fill: #93ab5c; }
+.reflexo-svg .pancreas        { fill: #9fb567; }
+.reflexo-svg .adrenals        { fill: #d99a76; }
+.reflexo-svg .stomach         { fill: #a9c14e; }
+.reflexo-svg .diaphragm       { fill: #bfe3e6; }
+.reflexo-svg .solar-plexus    { fill: #f2e3ae; }
+.reflexo-svg .esophagus       { fill: #6bb69a; }
+.reflexo-svg .thyroid         { fill: #63b3d6; }
+.reflexo-svg .neck            { fill: #ecbb7f; }
+.reflexo-svg .nose            { fill: #c98a63; }
+.reflexo-svg .throat          { fill: #e2ab6e; }
+.reflexo-svg .pituitary       { fill: #f2cfe2; }
+.reflexo-svg .heart           { fill: #e9958f; }
+.reflexo-svg .cls-40          { fill: none; stroke: #445064; stroke-width: 1; }
+.reflexo-svg .red             { stroke: none; }
+
+/* etiquetas de texto + líneas guía */
+.reflexo-svg .cls-43 {
+  font-family: var(--font-sans);
+  font-size: 8.5px;
+  fill: #445064;
+  stroke: none;
+  cursor: default;
+}
+.reflexo-svg .cls-44 {
+  fill: none;
+  stroke: rgba(11, 60, 110, 0.28);
+  stroke-width: 0.6;
+}
+
+/* hover (desktop) y estado activo (click/tap, cualquier dispositivo):
+   afecta tanto al path como a su etiqueta, porque comparten clase */
+.reflexo-svg path[class].hover,
+.reflexo-svg path[class].activo {
+  filter: brightness(1.15) saturate(1.15);
+  stroke: var(--navy);
+  stroke-width: 1.4;
+}
+.reflexo-svg g.text-group.hover .cls-43,
+.reflexo-svg g.text-group.activo .cls-43 {
+  fill: var(--navy);
+  font-weight: 700;
+}
+.reflexo-svg g.text-group.hover .cls-44,
+.reflexo-svg g.text-group.activo .cls-44 {
+  stroke: var(--halo-cyan);
+  stroke-width: 1.2;
+}
+
+/* ---- panel: modal centrado, mismo criterio que el resto del sitio ---- */
+.reflexo-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(11, 60, 110, 0.4);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  z-index: 50;
+}
+.reflexo-overlay.visible { opacity: 1; pointer-events: auto; }
+
+.reflexo-panel {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: min(90vw, 420px);
+  max-height: 82vh;
+  overflow-y: auto;
+  background: var(--navy);
+  color: #fff;
+  border-radius: 20px;
+  padding: 2.6rem 2.2rem;
+  z-index: 60;
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.96);
+  pointer-events: none;
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+.reflexo-panel.visible {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+  pointer-events: auto;
+}
+
+.reflexo-panel .eyebrow { color: var(--halo-cyan); }
+.reflexo-panel h3 {
+  font-family: var(--font-serif);
+  font-size: 1.5rem;
+  font-weight: 400;
+  margin: 0.3rem 0 0.8rem;
+}
+.reflexo-panel .texto {
+  font-size: 1rem;
+  line-height: 1.65;
+  color: rgba(255,255,255,0.9);
+  margin: 0 0 1.6rem;
+}
+.reflexo-panel .btn-primario {
+  background: var(--halo-cyan);
+  color: var(--ink);
+}
+
+.reflexo-panel__cerrar {
+  position: absolute;
+  top: 1.1rem;
+  right: 1.2rem;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.25);
+  background: transparent;
+  color: #fff;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease;
+}
+.reflexo-panel__cerrar:hover { background: rgba(255,255,255,0.12); }
+.reflexo-panel__cerrar:focus-visible { outline: 2px solid var(--halo-cyan); outline-offset: 2px; }
+
+@media (max-width: 640px) {
+  .reflexo-svg .cls-43 { font-size: 10px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reflexo-panel, .reflexo-overlay { transition: none; }
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+@media (max-width: 820px) {
+  .contacto .container {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .nav__links { display: none; }
+  .nav__toggle { display: block; }
+  section.pad { padding: 4rem 0; }
+
+  /* Imágenes de sección adaptadas a móvil: un poco más bajas que en
+     desktop (no necesitan tanto alto en una pantalla angosta), y el
+     fondo de categorías ancla arriba en vez de al centro, para que
+     no se pierda el sujeto principal de la foto al recortarse más
+     verticalmente que en desktop. */
+  .about {
+    min-height: clamp(340px, 62vh, 480px);
+  }
+
+  .services-bg__layer {
+    background-position: center top;
+  }
+}
+/* =========================================================
+   ESCÁNER DE TENSIÓN SOMÁTICA
+   Sección interactiva: foto de cuerpo + puntos posicionados en %
+   (para que funcionen igual en cualquier tamaño de imagen/pantalla).
+   Reutiliza las variables globales (--navy, --halo-cyan, --paper, etc.)
+   ========================================================= */
+/* =========================================================
+   ESCÁNER DE TENSIÓN SOMÁTICA — Ajuste Estado Inicial + Panel
+   ========================================================= */
+
+/* 1. La figura siempre centrada; el resultado va debajo, en flujo normal */
+/* ---------- Escáner de tensión somática ---------- */
+.escaner {
+  background: var(--paper-soft);
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.escaner-intro {
+  max-width: 56ch;
+  margin: 1.1rem auto 0;
+  font-size: 0.98rem;
+  line-height: 1.7;
+  color: #56607a;
+}
+
+.escaner-stage {
+  position: relative;
+  max-width: 1040px;
+  margin: 2rem auto 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+/* ---- foto + puntos ---- */
+.escaner-figura {
+  position: relative;
+  width: 100%;
+  max-width: 440px;
+  margin: 0 auto;
+  display: block;
+}
+
+/* ---- partículas de luz ambientales, decorativas ----
+   Se ubican por porcentaje alrededor de la figura (algunas
+   incluso por fuera del borde, gracias al inset negativo del
+   contenedor) y flotan despacio con opacidad + transform,
+   que es barato de animar y no castiga el rendimiento en
+   celulares. Van DETRÁS de la foto en el orden del DOM. */
+.escaner-particulas {
+  position: absolute;
+  inset: -6%;
+  z-index: 0;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.escaner-particula {
+  position: absolute;
+  top: var(--py);
+  left: var(--px);
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow:
+    0 0 6px 1.5px rgba(255,255,255,0.9),
+    0 0 16px 3px var(--pc, var(--halo-cyan));
+  opacity: 0;
+  animation: escanerFlotar 7s ease-in-out infinite;
+  animation-delay: var(--pd, 0s);
+}
+
+@keyframes escanerFlotar {
+  0%   { opacity: 0;    transform: translateY(0) scale(0.6); }
+  15%  { opacity: 0.9; }
+  50%  { opacity: 1;    transform: translateY(-22px) scale(1); }
+  85%  { opacity: 0.45; }
+  100% { opacity: 0;    transform: translateY(-46px) scale(0.6); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .escaner-particula { animation: none; opacity: 0.5; }
+}
+
+.escaner-figura img {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.escaner-punto {
+  position: absolute;
+  z-index: 2;
+  width: 22px;
+  height: 22px;
+  transform: translate(-50%, -50%);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.escaner-punto::before,
+.escaner-punto::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* punto sólido */
+.escaner-punto::before {
+  width: 9px;
+  height: 9px;
+  background: var(--navy);
+  box-shadow: 0 0 0 4px rgba(255,255,255,0.65);
+  transition: background 0.25s ease, width 0.25s ease, height 0.25s ease;
+}
+
+/* halo animado (mismo espíritu que --halo-cyan del resto del sitio) */
+.escaner-punto::after {
+  width: 9px;
+  height: 9px;
+  border: 1.4px solid var(--halo-cyan);
+  opacity: 0;
+}
+
+.escaner-punto:hover::before,
+.escaner-punto.activo::before {
+  background: var(--navy-soft);
+  width: 12px;
+  height: 12px;
+}
+
+.escaner-punto:hover::after,
+.escaner-punto.activo::after,
+.escaner-punto:focus-visible::after {
+  animation: escaner-pulso 1.8s ease-in-out infinite;
+}
+
+@keyframes escaner-pulso {
+  0%   { transform: translate(-50%, -50%) scale(0.8); opacity: 0.35; }
+  50%  { transform: translate(-50%, -50%) scale(2.4); opacity: 0.9; }
+  100% { transform: translate(-50%, -50%) scale(0.8); opacity: 0.35; }
+}
+
+.escaner-punto:focus-visible { outline: none; }
+.escaner-punto:focus-visible::before { background: var(--navy-soft); }
+
+.escaner-etiqueta {
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  transform: translateY(-50%);
+  white-space: nowrap;
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  color: var(--ink);
+  background: rgba(255,255,255,0.9);
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+.escaner-punto:hover + .escaner-etiqueta { opacity: 1; }
+
+/* ---- línea guía tipo "chart": conecta el punto con la nota ----
+   Solo se activa en pantallas grandes (ver media query más abajo
+   y el chequeo modoChart() en JS); en mobile queda oculta. */
+.escaner-linea {
+  display: none;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 3;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.escaner-linea line {
+  stroke: var(--halo-cyan);
+  stroke-width: 1.4;
+  opacity: 0.8;
+  transition: stroke-dashoffset 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.escaner-linea circle {
+  fill: var(--halo-cyan);
+  opacity: 0.9;
+}
+
+/* ---- resultado: nota al costado de la figura (o debajo, en mobile) ----
+   Por defecto (mobile / pantallas angostas) es un bloque en el flujo
+   normal, debajo de la figura — igual que antes. En pantallas anchas
+   (ver media query más abajo) pasa a ser una "nota" flotante al costado,
+   conectada con una línea guía tipo chart. */
+.escaner-resultado {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  max-width: 480px;
+  margin: 0 auto;
+  transition: grid-template-rows 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+              opacity 0.45s ease,
+              margin-top 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.escaner-resultado.visible {
+  grid-template-rows: 1fr;
+  opacity: 1;
+  margin-top: 2.4rem;
+}
+
+.escaner-resultado__inner {
+  overflow: hidden;
+  min-height: 0;
+  position: relative;
+  background: linear-gradient(165deg, #ffffff 0%, var(--paper-soft) 100%);
+  color: var(--ink);
+  border: 1px solid rgba(111, 227, 240, 0.4);
+  border-radius: 18px;
+  padding: 2.4rem 2.1rem;
+  text-align: center;
+  box-shadow: 0 24px 60px -34px rgba(11, 60, 110, 0.35);
+}
+
+/* resplandor suave (aurora) detrás de la nota, una sola vez al aparecer */
+.escaner-resultado__inner::before {
+  content: '';
+  position: absolute;
+  inset: -30%;
+  background:
+    radial-gradient(circle at 20% 15%, rgba(96,165,250,0.22) 0%, transparent 55%),
+    radial-gradient(circle at 85% 80%, rgba(232,121,249,0.18) 0%, transparent 55%);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 0;
+  animation: escanerResultadoGlow 1.4s ease-out;
+}
+
+@keyframes escanerResultadoGlow {
+  0%   { opacity: 0; }
+  35%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* pequeña marca ornamental arriba del contenido, en vez de un ícono clínico */
+.escaner-body__marca {
+  display: block;
+  width: 30px;
+  height: 1px;
+  margin: 0 auto 1.1rem;
+  background: linear-gradient(to right, transparent, var(--halo-cyan), transparent);
+}
+
+.escaner-resultado__cerrar {
+  position: absolute;
+  z-index: 2;
+  top: 1.1rem;
+  right: 1.2rem;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink);
+  opacity: 0.6;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease, opacity 0.2s ease;
+}
+.escaner-resultado__cerrar:hover { background: rgba(11,60,110,0.06); opacity: 1; }
+.escaner-resultado__cerrar:focus-visible { outline: 2px solid var(--halo-cyan); outline-offset: 2px; }
+
+.escaner-scan { position: relative; z-index: 1; display: none; }
+.escaner-scan.activo { display: block; }
+.escaner-scan__label {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 0.85rem;
+  letter-spacing: 0.02em;
+  color: var(--navy);
+  margin-bottom: 1rem;
+}
+.escaner-scan__barra {
+  width: 60%;
+  height: 2px;
+  margin: 0 auto;
+  background: rgba(111, 227, 240, 0.2);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.escaner-scan__barra span {
+  display: block; height: 100%; width: 0%;
+  background: linear-gradient(90deg, var(--halo-cyan), #e879f9);
+  transition: width 0.9s cubic-bezier(0.4,0,0.2,1);
+}
+
+.escaner-body { position: relative; z-index: 1; display: none; opacity: 0; transition: opacity 0.4s ease; }
+.escaner-body.activo { display: block; opacity: 1; }
+
+.escaner-body hr {
+  border: none;
+  border-top: 1px solid var(--line);
+  margin: 1.3rem 0;
+  width: 40%;
+  margin-left: auto;
+  margin-right: auto;
+}
+.escaner-body .eyebrow { color: var(--navy); opacity: 0.7; }
+.escaner-body h3 {
+  font-family: var(--font-serif);
+  font-size: 1.5rem;
+  font-weight: 400;
+  color: var(--ink);
+  margin: 0 0 0.3rem;
+}
+.escaner-body .kicker {
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  color: #6b7690;
+  margin: 0;
+}
+.escaner-body p.texto {
+  font-size: 0.98rem;
+  line-height: 1.65;
+  color: #384357;
+  margin: 0;
+}
+.escaner-body p.pregunta {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 1.05rem;
+  color: var(--navy);
+  margin: 0;
+}
+
+.escaner-cta-puente {
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: #6b7690;
+  margin: 1.5rem 0 0;
+}
+
+.escaner-body .btn-primario {
+  margin-top: 1rem;
+  background: transparent;
+  color: var(--navy);
+  border: 1px solid var(--navy);
+  box-shadow: none;
+}
+.escaner-body .btn-primario:hover {
+  background: var(--navy);
+  color: #fff;
+}
+
+@media (max-width: 780px) {
+  .escaner-figura {
+    width: 100%;
+    max-width: 320px;
+    margin: 0 auto;
+  }
+
+  /* Ajustamos el tamaño táctil de los puntos para facilitar la interacción en móviles */
+  .escaner-punto {
+    width: 30px;
+    height: 30px;
+  }
+
+  .escaner-resultado__inner {
+    padding: 2.2rem 1.5rem;
+  }
+
+  .escaner-etiqueta {
+    display: none; /* En móviles el resultado se abre directo al tocar */
+  }
+}
+
+/* ---- Modo "chart": pantallas con espacio a los costados ----
+   La nota deja de estar debajo y pasa a flotar al lado de la figura,
+   conectada con la línea guía dibujada por JS (ver modoChart() en el
+   script). El umbral coincide con el de JS (1100px). */
+@media (min-width: 1100px) {
+  .escaner-linea { display: block; }
+
+  .escaner-resultado {
+    display: block;
+    position: absolute;
+    width: 270px;
+    max-width: none;
+    top: 10%;
+    grid-template-rows: unset;
+    opacity: 0;
+    margin: 0;
+    pointer-events: none;
+    transition: opacity 0.45s ease, transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .escaner-resultado.lado-der { right: 0; transform: translateX(18px); }
+  .escaner-resultado.lado-izq { left: 0; transform: translateX(-18px); }
+
+  .escaner-resultado.visible {
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: auto;
+    margin: 0;
+  }
+
+  .escaner-resultado__inner { text-align: left; padding: 2rem 1.8rem; }
+  .escaner-body__marca { margin: 0 0 1.1rem; }
+  .escaner-body hr { margin-left: 0; }
+  .escaner-scan__barra { margin: 0; width: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .escaner-punto:hover::after,
+  .escaner-punto.activo::after,
+  .escaner-punto:focus-visible::after { animation: none; opacity: 0.6; }
+  .escaner-resultado, .escaner-resultado__inner, .escaner-scan__barra span, .escaner-linea line { transition: none; }
+  .escaner-resultado__inner::before { animation: none; }
+}
+
+/* =========================================================
+   RECURSOS INTERACTIVOS
+   Contenedor que agrupa varios recursos (mapa de reflexología,
+   escáner de tensión somática, futuros recursos) navegables
+   con flechas dentro de la misma sección.
+   ========================================================= */
+.recurso-item__subtitulo {
+  font-family: var(--font-serif);
+  font-size: 1.15rem;
+  font-weight: 400;
+  text-align: center;
+  color: var(--navy);
+  margin: 0 0 0.4rem;
+}
+
+.recursos-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.1rem;
+  margin: 0 auto 2.2rem;
+  max-width: 420px;
+}
+
+.recursos-flecha {
+  flex: 0 0 auto;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  color: var(--navy);
+  font-size: 1.4rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.recursos-flecha:hover {
+  background: var(--paper-soft);
+  border-color: var(--halo-cyan);
+  transform: translateY(-1px);
+}
+
+.recursos-flecha:focus-visible {
+  outline: 2px solid var(--halo-cyan);
+  outline-offset: 2px;
+}
+
+.recursos-nav__info {
+  min-width: 200px;
+  text-align: center;
+}
+
+.recursos-nav__contador {
+  display: block;
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8a93a8;
+  margin-bottom: 0.15rem;
+}
+
+.recursos-nav__titulo {
+  display: block;
+  font-family: var(--font-serif);
+  font-size: 1.05rem;
+  color: var(--navy);
+}
+
+.recursos-track {
+  position: relative;
+}
+
+.recurso-item {
+  display: none;
+}
+
+.recurso-item.activo {
+  display: block;
+  animation: recursoAparece 0.4s ease;
+}
+
+@keyframes recursoAparece {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .recurso-item.activo { animation: none; }
+}
+
+@media (max-width: 640px) {
+  .recursos-nav { gap: 0.6rem; }
+  .recursos-nav__info { min-width: 150px; }
+  .recursos-nav__titulo { font-size: 0.92rem; }
+}
