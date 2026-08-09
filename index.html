@@ -379,15 +379,13 @@
      ========================================= */
   .therapy-item h2,
   .therapy-item p,
-  .therapy-item .btn,
-  .therapy-item .item-photo {
+  .therapy-item .btn {
     opacity: 0;
     transform: translateY(26px);
     transition: opacity 0.7s ease, transform 0.7s ease;
   }
   .therapy-item.in-view h2 { opacity: 1; transform: translateY(0); }
   .therapy-item.in-view p { opacity: 1; transform: translateY(0); transition-delay: 0.12s; }
-  .therapy-item.in-view .item-photo { opacity: 1; transform: translateY(0); }
   .therapy-item.in-view .btn { opacity: 1; transform: translateY(0); transition-delay: 0.55s; }
 
   .therapy-item h2 {
@@ -1380,10 +1378,6 @@
     .therapy-benefits li { font-size: 0.85rem; line-height: 1.3; margin-bottom: 0.4rem; padding-left: 1.25rem; }
     .btn { margin: 0 auto; padding: 0.75rem 2rem; font-size: 0.82rem; }
 
-    /* La foto circular chica de cada terapia ya no hace falta: ahora
-       esa imagen se muestra dentro del portal fijo de arriba */
-    .therapy-item .item-photo { display: none; }
-
     /* Puntitos de progreso del carrusel */
     .carousel-dots {
       display: flex;
@@ -1619,7 +1613,6 @@
       <div class="therapy-carousel" id="therapyCarousel">
 
       <div class="therapy-item" data-index="0" data-color="#4ade80" data-accent="#4ade80">
-        <img class="item-photo" src="https://i0.wp.com/familyconstellationseurope.com/wp-content/uploads/2025/01/Untitled.jpeg?fit=800%2C800&ssl=1" alt="Constelaciones Familiares" loading="lazy" decoding="async">
         <h2>Constelaciones Familiares</h2>
         <p>Un método sistémico que revela los vínculos invisibles entre generaciones. Como estrellas de un mismo cúmulo, cada miembro de la familia ocupa un lugar y una fuerza que, al ordenarse, libera al sistema entero.</p>
         <ul class="therapy-benefits">
@@ -1631,7 +1624,6 @@
       </div>
 
       <div class="therapy-item" data-index="1" data-color="#facc15" data-accent="#facc15">
-        <img class="item-photo" src="https://images.unsplash.com/photo-1519834785169-98be25ec3f84?auto=format&fit=crop&q=80&w=800" alt="Reiki" loading="lazy" decoding="async">
         <h2>Reiki</h2>
         <p>Canalización de energía universal a través de las manos para equilibrar el cuerpo, la mente y el espíritu. Una corriente sutil que disuelve bloqueos y devuelve la vitalidad a cada capa del ser.</p>
         <ul class="therapy-benefits">
@@ -1643,7 +1635,6 @@
       </div>
 
       <div class="therapy-item" data-index="2" data-color="#38bdf8" data-accent="#38bdf8">
-        <img class="item-photo" src="https://images.unsplash.com/photo-1499209974431-9dddcece7f88?auto=format&fit=crop&q=80&w=800" alt="Barras de Access" loading="lazy" decoding="async">
         <h2>Barras de Access</h2>
         <p>Treinta y dos puntos sobre la cabeza que, al ser tocados suavemente, disuelven creencias limitantes acumuladas durante toda una vida. Una técnica precisa como un mapa estelar, dirigida al cambio real.</p>
         <ul class="therapy-benefits">
@@ -1655,7 +1646,6 @@
       </div>
 
       <div class="therapy-item" data-index="3" data-color="#e879f9" data-accent="#e879f9">
-        <img class="item-photo" src="https://images.unsplash.com/photo-1532012197267-da84d127e765?auto=format&fit=crop&q=80&w=800" alt="Registros Akáshicos" loading="lazy" decoding="async">
         <h2>Registros Akáshicos</h2>
         <p>El archivo etérico donde queda inscrita cada experiencia del alma a través del tiempo. Consultarlo es abrir un libro cuyas páginas se despliegan en constelaciones de respuestas y propósito.</p>
         <ul class="therapy-benefits">
@@ -1667,7 +1657,6 @@
       </div>
 
       <div class="therapy-item" data-index="4" data-color="#fb7185" data-accent="#fb7185">
-        <img class="item-photo" src="https://images.unsplash.com/photo-1544161515-4ab6ce6db874?auto=format&fit=crop&q=80&w=800" alt="Masajes Holísticos" loading="lazy" decoding="async">
         <h2>Masajes Holísticos</h2>
         <p>Manos que leen el cuerpo como un territorio propio, liberando tensión acumulada capa tras capa. Un trabajo que integra técnica y presencia para devolver al cuerpo su estado natural de calma.</p>
         <ul class="therapy-benefits">
@@ -1679,7 +1668,6 @@
       </div>
 
       <div class="therapy-item" data-index="5" data-color="#818cf8" data-accent="#818cf8">
-        <img class="item-photo" src="https://images.unsplash.com/photo-1519415510236-718bdfcd89c8?auto=format&fit=crop&q=80&w=800" alt="Reflexología" loading="lazy" decoding="async">
         <h2>Reflexología</h2>
         <p>Cada punto de la planta del pie es una puerta hacia un órgano o sistema del cuerpo. Presionar con precisión estos puntos es activar un mapa completo de bienestar, trazado como una constelación.</p>
         <ul class="therapy-benefits">
@@ -1691,7 +1679,6 @@
       </div>
 
       <div class="therapy-item" data-index="6" data-color="#34d399" data-accent="#34d399">
-        <img class="item-photo" src="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&q=80&w=800" alt="Senderismo Holístico" loading="lazy" decoding="async">
         <h2>Senderismo Holístico</h2>
         <p>Caminatas conscientes en la naturaleza que combinan respiración, silencio y movimiento. Un sendero físico que, paso a paso, se convierte también en un camino interior bajo un cielo abierto.</p>
         <ul class="therapy-benefits">
