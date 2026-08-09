@@ -1217,6 +1217,15 @@
 
   @media (max-width: 640px) {
     .tarot-section { padding: 70px 6vw; }
+    /* En mobile, la tirada usa el layout "coverflow" de 360px fijos (ver
+       .tarot-spread--coverflow más abajo) en vez del layout de 3 cartas
+       en fila de escritorio — la altura real de la sección es bastante
+       menor que el estimado de 850px pensado para desktop. Si
+       content-visibility:auto activa la sección con un estimado muy
+       distinto al real, el navegador tiene que recalcular el layout de
+       golpe justo al entrar — de ahí el tirón. Achicamos el estimado acá
+       para que se ajuste mejor al alto real en mobile. */
+    .tarot-section { contain-intrinsic-size: auto 650px; }
   }
 
   @media (prefers-reduced-motion: reduce) {
