@@ -579,6 +579,12 @@
     transform: scale(1.1);
     filter: brightness(0.75) contrast(1.1);
     transition: opacity 0.8s ease, transform 1.2s cubic-bezier(0.25, 1, 0.5, 1);
+    /* Sin esto, cada cambio de foto obliga al navegador a recomponer a
+       mano la máscara circular del contenedor en cada frame de la
+       transición (hasta 1.2s). Con will-change, el navegador arma de
+       antemano una capa GPU dedicada para cada foto y solo tiene que
+       mezclarlas — mismo resultado visual, mucho más barato. */
+    will-change: opacity, transform;
   }
   .portal-img.active {
     opacity: 1;
