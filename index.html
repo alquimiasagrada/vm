@@ -2070,8 +2070,8 @@
         trigger: mobileCarouselStage,
         start: "top center",
         end: "bottom center",
-        onEnter: () => { if (MOBILE_QUERY.matches) updateCarouselFromScroll(); },
-        onEnterBack: () => { if (MOBILE_QUERY.matches) updateCarouselFromScroll(); }
+        onEnter: () => { if (MOBILE_QUERY.matches) updateCarouselFromScroll(true); },
+        onEnterBack: () => { if (MOBILE_QUERY.matches) updateCarouselFromScroll(true); }
       });
     }
 
@@ -2142,7 +2142,9 @@
       carouselDots.forEach((dot, i) => dot.classList.toggle('active', i === index));
     }
 
-    function updateCarouselFromScroll() {
+    let lastCarouselIndex = null;
+
+    function updateCarouselFromScroll(force) {
       if (!therapyCarousel) return;
       const containerRect = therapyCarousel.getBoundingClientRect();
       const containerCenter = containerRect.left + containerRect.width / 2;
@@ -2158,7 +2160,14 @@
           closestIndex = index;
         }
       });
-      if (closestItem) {
+      // Solo repintar (fondo, reproductor, punto activo) cuando la tarjeta
+      // centrada realmente cambió — evita repaints innecesarios en cada
+      // frame de scroll mientras se está deslizando, que era la causa de
+      // los bajones de FPS al recorrer el carrusel. `force` se usa para
+      // resincronizar igual, por ejemplo al volver del hero (que puso el
+      // logo en el portal) aunque el índice "centrado" no haya cambiado.
+      if (closestItem && (force || closestIndex !== lastCarouselIndex)) {
+        lastCarouselIndex = closestIndex;
         activateSection(closestIndex, closestItem);
         setActiveDot(closestIndex);
       }
@@ -2185,7 +2194,7 @@
       // Estado inicial del portal y los puntitos apenas carga, si ya
       // estamos en mobile: debe arrancar en la primera tarjeta
       // (Constelaciones Familiares), no en el logo del hero.
-      if (MOBILE_QUERY.matches) updateCarouselFromScroll();
+      if (MOBILE_QUERY.matches) updateCarouselFromScroll(true);
     }
 
     // Agendar Sesión: el botón siempre lleva directo a WhatsApp.
