@@ -1334,6 +1334,11 @@
       padding: 0 0 0.75rem;
     }
     .portal-frame { width: min(40vw, 165px); }
+    /* La animación de "respiración" del portal (portalBreathe) anima
+       box-shadow, que obliga a repintar en cada frame — carísimo en
+       mobile. La desactivamos acá y queda un brillo fijo; los anillos
+       orbitales (transform: rotate) son baratos y siguen girando igual. */
+    .portal-frame { animation: none; }
 
     /* Carrusel horizontal de terapias con scroll-snap: una tarjeta por
        pantalla; se desliza en vez de scrollear verticalmente. */
@@ -1353,6 +1358,7 @@
       width: 100%;
       box-sizing: border-box;
       scroll-snap-align: center;
+      scroll-snap-stop: always;
       min-height: 0;
       opacity: 1;
       padding: 0.25rem 8vw 0.5rem;
@@ -2060,21 +2066,6 @@
       });
     }
 
-    // Mobile: al llegar al stage del carrusel (portal+tarjeta) sincronizamos
-    // el portal con la tarjeta que esté centrada en ese momento — por
-    // defecto la primera (Constelaciones Familiares) — en vez de dejar el
-    // logo que puso activateHero(). También se re-sincroniza si el
-    // usuario sube al hero y vuelve a bajar sin haber deslizado.
-    if (mobileCarouselStage) {
-      ScrollTrigger.create({
-        trigger: mobileCarouselStage,
-        start: "top center",
-        end: "bottom center",
-        onEnter: () => { if (MOBILE_QUERY.matches) updateCarouselFromScroll(true); },
-        onEnterBack: () => { if (MOBILE_QUERY.matches) updateCarouselFromScroll(true); }
-      });
-    }
-
     // onEnter/onEnterBack de ScrollTrigger solo disparan cuando el scroll
     // CRUZA el punto de inicio del trigger. Como el hero ya está a la
     // vista apenas carga la página (sin necesidad de scrollear), nunca se
@@ -2084,9 +2075,16 @@
     function activateHero() {
       items.forEach(el => el.classList.remove('active'));
 
-      images.forEach(img => img.classList.remove('active'));
-      const logoImg = document.getElementById('img-logo');
-      if (logoImg) logoImg.classList.add('active');
+      // En mobile el hero ya tiene su propia fotito circular separada
+      // (.hero-block .item-photo) — el portal de categorías no debe
+      // tocarse desde acá, así nunca "vuelve" a mostrar el logo mientras
+      // el carrusel entra o sale de pantalla. En desktop el portal sigue
+      // siendo compartido con el hero, como siempre.
+      if (!MOBILE_QUERY.matches) {
+        images.forEach(img => img.classList.remove('active'));
+        const logoImg = document.getElementById('img-logo');
+        if (logoImg) logoImg.classList.add('active');
+      }
 
       bgMain.style.background = `radial-gradient(circle at 12% 30%, rgba(76, 155, 163, 0.28) 0%, transparent 45%), radial-gradient(circle at 88% 28%, rgba(224, 178, 90, 0.28) 0%, transparent 50%), var(--bg-base)`;
 
