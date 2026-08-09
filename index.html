@@ -581,6 +581,7 @@
 
   .orb {
     position: absolute;
+    z-index: 3;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -590,14 +591,25 @@
     box-shadow: 0 0 20px currentColor;
     animation: floatOrb 5s ease-in-out infinite alternate;
   }
-  .orb-1 { width: 45px; height: 45px; top: 10%; right: -20px; background: #8b5cf6; color: #8b5cf6; }
-  .orb-2 { width: 35px; height: 35px; bottom: 20%; left: -25px; background: #3b82f6; color: #3b82f6; animation-delay: -2s;}
-  .orb-3 { width: 30px; height: 30px; bottom: -5px; right: 20%; background: var(--gold); color: var(--gold); animation-delay: -4s;}
+  .orb-1 { width: 32px; height: 32px; top: 10%; right: -20px; background: #8b5cf6; color: #8b5cf6; }
+  .orb-2 { width: 25px; height: 25px; bottom: 20%; left: -25px; background: #3b82f6; color: #3b82f6; animation-delay: -2s;}
+  .orb-3 { width: 22px; height: 22px; bottom: -5px; right: 20%; background: var(--gold); color: var(--gold); animation-delay: -4s;}
 
   @keyframes floatOrb {
     0% { transform: translateY(0); }
     100% { transform: translateY(-15px); }
   }
+
+  /* =========================================
+     CARRUSEL DE TERAPIAS (solo mobile)
+     En escritorio .therapy-carousel es un wrapper invisible (display:
+     contents) para no alterar en nada el layout de scroll vertical
+     existente; toma forma de carrusel horizontal recién dentro del
+     media query de abajo. Los puntitos de progreso solo existen en mobile.
+     ========================================= */
+  .therapy-carousel { display: contents; }
+  .carousel-dots { display: none; }
+  .mobile-carousel-stage { display: contents; }
 
   /* =========================================
      SECCIÓN AGENDAR SESIÓN (WHATSAPP)
@@ -1267,28 +1279,19 @@
   @media (max-width: 960px) {
     .scroll-container { flex-direction: column; padding: 0; }
 
-    /* La columna de imagen "sticky" se reemplaza por una foto fija
-       dentro de cada bloque, así nunca queda flotando sobre el texto */
-    .visual-col { display: none; }
+    /* .text-col pasa a ser un wrapper invisible: sus hijos directos
+       (hero-block y el "stage" del carrusel) se "promueven" a flex items
+       directos de .scroll-container — así los podemos ordenar con
+       `order` sin tocar el HTML ni el JS de desktop. */
+    .text-col { display: contents; }
 
-    .text-col { width: 100%; padding: 2vh 8vw 8vh; z-index: 2; position: relative; }
-
-    .therapy-item {
-      min-height: 0;
-      opacity: 1;
-      padding: 2.5rem 0;
-      border-bottom: 1px solid rgba(28, 49, 68, 0.08);
-      align-items: center;
+    .hero-block {
+      order: 1;
+      padding: 12vh 8vw 4vh;
       text-align: center;
+      min-height: auto;
     }
-    .therapy-item:last-child { border-bottom: none; }
-
-    .therapy-item h2 { font-size: clamp(2.1rem, 8vw, 2.6rem); margin-bottom: 1rem; }
-    .therapy-item p { max-width: 100%; font-size: 1rem; }
-    .therapy-benefits { max-width: 100%; text-align: left; }
-    .btn { margin: 0 auto; }
-
-    .item-photo {
+    .hero-block .item-photo {
       display: block;
       width: min(60vw, 260px);
       aspect-ratio: 1 / 1;
@@ -1300,12 +1303,109 @@
       filter: brightness(0.95) contrast(1.05);
     }
 
+    /* "Stage" del carrusel: agrupa portal + tarjeta + puntitos en un
+       único bloque de una pantalla completa (100dvh), centrado
+       verticalmente, para que entre todo sin necesitar scroll extra. El
+       portal físicamente se reubica acá adentro por JS (ver script),
+       solo mientras estamos en este ancho — en escritorio nunca se
+       mueve y sigue siendo la columna sticky de siempre. */
+    .mobile-carousel-stage {
+      order: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      min-height: 100vh;
+      min-height: 100dvh;
+      box-sizing: border-box;
+      padding: 2rem 0;
+    }
+
+    /* El portal circular queda fijo arriba de la tarjeta: no se mueve al
+       deslizar, solo cambia la imagen de adentro (ver JS, reutiliza la
+       misma activateSection() que en desktop). */
+    .visual-col {
+      display: flex;
+      position: static;
+      width: 100%;
+      height: auto;
+      flex: 0 0 auto;
+      padding: 0 0 0.75rem;
+    }
+    .portal-frame { width: min(40vw, 165px); }
+
+    /* Carrusel horizontal de terapias con scroll-snap: una tarjeta por
+       pantalla; se desliza en vez de scrollear verticalmente. */
+    .therapy-carousel {
+      display: flex;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      width: 100%;
+      flex: 0 0 auto;
+    }
+    .therapy-carousel::-webkit-scrollbar { display: none; }
+
+    .therapy-item {
+      flex: 0 0 100%;
+      width: 100%;
+      box-sizing: border-box;
+      scroll-snap-align: center;
+      min-height: 0;
+      opacity: 1;
+      padding: 0.25rem 8vw 0.5rem;
+      align-items: center;
+      text-align: center;
+    }
+    /* La tarjeta ya no necesita el fade-up de scroll vertical: aparece
+       completa apenas se desliza hasta el centro del carrusel */
+    .therapy-item h2, .therapy-item p, .therapy-item .btn,
+    .therapy-item .therapy-benefits li {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+
+    .therapy-item h2 { font-size: clamp(1.5rem, 6.5vw, 1.9rem); margin-bottom: 0.5rem; line-height: 1.15; }
+    .therapy-item p { max-width: 100%; font-size: 0.88rem; line-height: 1.45; margin-bottom: 0.75rem; }
+    .therapy-benefits { max-width: 100%; text-align: left; margin-bottom: 1rem; }
+    .therapy-benefits li { font-size: 0.85rem; line-height: 1.3; margin-bottom: 0.4rem; padding-left: 1.25rem; }
+    .btn { margin: 0 auto; padding: 0.75rem 2rem; font-size: 0.82rem; }
+
+    /* La foto circular chica de cada terapia ya no hace falta: ahora
+       esa imagen se muestra dentro del portal fijo de arriba */
+    .therapy-item .item-photo { display: none; }
+
+    /* Puntitos de progreso del carrusel */
+    .carousel-dots {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      padding-top: 0.5rem;
+      width: 100%;
+      flex: 0 0 auto;
+    }
+    .carousel-dots .dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      border: none;
+      padding: 0;
+      background: var(--gold-dim);
+      opacity: 0.5;
+      transition: opacity 0.3s ease, transform 0.3s ease, background 0.3s ease;
+    }
+    .carousel-dots .dot.active {
+      opacity: 1;
+      background: var(--gold);
+      transform: scale(1.3);
+    }
+
     .music-player { bottom: 15px; right: 15px; padding: 8px 14px; }
     .music-info { max-width: 130px; }
     .site-footer { padding: 40px 6vw 30px; text-align: center; }
     .footer-col { display: flex; flex-direction: column; align-items: center; }
-    .hero-block { padding-top: 12vh; text-align: center; min-height: 55vh; }
-    .hero-block .item-photo { display: block; }
 
     .natal-section { padding: 70px 6vw; }
     .natal-result { flex-direction: column; align-items: center; gap: 2rem; }
@@ -1508,6 +1608,10 @@
         <p class="brand-tagline">El amor ordena, el alma florece.</p>
       </div>
 
+      <div class="mobile-carousel-stage" id="mobileCarouselStage">
+
+      <div class="therapy-carousel" id="therapyCarousel">
+
       <div class="therapy-item" data-index="0" data-color="#4ade80" data-accent="#4ade80">
         <img class="item-photo" src="https://i0.wp.com/familyconstellationseurope.com/wp-content/uploads/2025/01/Untitled.jpeg?fit=800%2C800&ssl=1" alt="Constelaciones Familiares" loading="lazy" decoding="async">
         <h2>Constelaciones Familiares</h2>
@@ -1590,6 +1694,20 @@
           <li>Reconecta con los ciclos naturales</li>
         </ul>
         <a href="#agendar" class="btn">Agendar Sesión</a>
+      </div>
+
+      </div>
+
+      <div class="carousel-dots" id="therapyDots">
+        <button type="button" class="dot" data-index="0" aria-label="Ir a Constelaciones Familiares"></button>
+        <button type="button" class="dot" data-index="1" aria-label="Ir a Reiki"></button>
+        <button type="button" class="dot" data-index="2" aria-label="Ir a Barras de Access"></button>
+        <button type="button" class="dot" data-index="3" aria-label="Ir a Registros Akáshicos"></button>
+        <button type="button" class="dot" data-index="4" aria-label="Ir a Masajes Holísticos"></button>
+        <button type="button" class="dot" data-index="5" aria-label="Ir a Reflexología"></button>
+        <button type="button" class="dot" data-index="6" aria-label="Ir a Senderismo Holístico"></button>
+      </div>
+
       </div>
 
     </div>
@@ -1888,16 +2006,46 @@
     const playerContainer = document.getElementById('musicPlayerContainer');
     const playBtn = document.getElementById('playBtn');
     const eqBars = document.querySelectorAll('.dynamic-eq');
+    const MOBILE_QUERY = window.matchMedia('(max-width: 960px)');
 
-    items.forEach((item, index) => {
-      ScrollTrigger.create({
-        trigger: item,
-        start: "top center",
-        end: "bottom center",
-        onEnter: () => activateSection(index, item),
-        onEnterBack: () => activateSection(index, item)
+    // En mobile, el portal circular (.visual-col) se reubica físicamente
+    // dentro de #mobileCarouselStage (arriba del carrusel) para que
+    // portal + tarjeta + puntitos formen un único bloque de una
+    // pantalla completa y centrada, sin que nada quede afuera. En
+    // desktop vuelve a su lugar original: columna sticky junto al texto.
+    const textCol = document.querySelector('.text-col');
+    const visualCol = document.querySelector('.visual-col');
+    const mobileCarouselStage = document.getElementById('mobileCarouselStage');
+
+    function placePortalForViewport() {
+      if (!visualCol || !mobileCarouselStage || !textCol) return;
+      if (MOBILE_QUERY.matches) {
+        mobileCarouselStage.prepend(visualCol);
+      } else {
+        textCol.insertAdjacentElement('afterend', visualCol);
+      }
+    }
+    placePortalForViewport();
+    if (MOBILE_QUERY.addEventListener) {
+      MOBILE_QUERY.addEventListener('change', placePortalForViewport);
+    }
+
+    // En mobile las 7 tarjetas viven una al lado de la otra dentro de un
+    // carrusel horizontal (misma altura de página para las 7), así que
+    // un ScrollTrigger de scroll VERTICAL no sirve para saber cuál está
+    // centrada — de eso se encarga el bloque "carrusel mobile" más abajo,
+    // que llama a esta misma activateSection() al deslizar.
+    if (!MOBILE_QUERY.matches) {
+      items.forEach((item, index) => {
+        ScrollTrigger.create({
+          trigger: item,
+          start: "top center",
+          end: "bottom center",
+          onEnter: () => activateSection(index, item),
+          onEnterBack: () => activateSection(index, item)
+        });
       });
-    });
+    }
 
     // El bloque hero muestra el logo en el portal mientras está en pantalla,
     // antes de que el scroll llegue a la primera terapia
@@ -1909,6 +2057,21 @@
         end: "bottom center",
         onEnter: activateHero,
         onEnterBack: activateHero
+      });
+    }
+
+    // Mobile: al llegar al stage del carrusel (portal+tarjeta) sincronizamos
+    // el portal con la tarjeta que esté centrada en ese momento — por
+    // defecto la primera (Constelaciones Familiares) — en vez de dejar el
+    // logo que puso activateHero(). También se re-sincroniza si el
+    // usuario sube al hero y vuelve a bajar sin haber deslizado.
+    if (mobileCarouselStage) {
+      ScrollTrigger.create({
+        trigger: mobileCarouselStage,
+        start: "top center",
+        end: "bottom center",
+        onEnter: () => { if (MOBILE_QUERY.matches) updateCarouselFromScroll(); },
+        onEnterBack: () => { if (MOBILE_QUERY.matches) updateCarouselFromScroll(); }
       });
     }
 
@@ -1966,6 +2129,63 @@
       playBtn.style.background = accentContextColor;
       playBtn.style.boxShadow = `0 0 15px ${accentContextColor}66`;
       eqBars.forEach(bar => bar.style.background = accentContextColor);
+    }
+
+    // ---- Carrusel mobile: el portal queda fijo arriba y solo cambia su
+    // imagen/color según qué tarjeta quedó centrada al deslizar. En
+    // desktop este bloque no hace nada (el carrusel no existe como tal,
+    // .therapy-carousel es un wrapper invisible). ----
+    const therapyCarousel = document.getElementById('therapyCarousel');
+    const carouselDots = document.querySelectorAll('#therapyDots .dot');
+
+    function setActiveDot(index) {
+      carouselDots.forEach((dot, i) => dot.classList.toggle('active', i === index));
+    }
+
+    function updateCarouselFromScroll() {
+      if (!therapyCarousel) return;
+      const containerRect = therapyCarousel.getBoundingClientRect();
+      const containerCenter = containerRect.left + containerRect.width / 2;
+      let closestItem = null;
+      let closestIndex = 0;
+      let closestDist = Infinity;
+      items.forEach((item, index) => {
+        const rect = item.getBoundingClientRect();
+        const dist = Math.abs((rect.left + rect.width / 2) - containerCenter);
+        if (dist < closestDist) {
+          closestDist = dist;
+          closestItem = item;
+          closestIndex = index;
+        }
+      });
+      if (closestItem) {
+        activateSection(closestIndex, closestItem);
+        setActiveDot(closestIndex);
+      }
+    }
+
+    if (therapyCarousel) {
+      let carouselTicking = false;
+      therapyCarousel.addEventListener('scroll', () => {
+        if (!MOBILE_QUERY.matches || carouselTicking) return;
+        carouselTicking = true;
+        requestAnimationFrame(() => {
+          updateCarouselFromScroll();
+          carouselTicking = false;
+        });
+      }, { passive: true });
+
+      carouselDots.forEach((dot) => {
+        dot.addEventListener('click', () => {
+          const target = items[Number(dot.dataset.index)];
+          if (target) target.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+        });
+      });
+
+      // Estado inicial del portal y los puntitos apenas carga, si ya
+      // estamos en mobile: debe arrancar en la primera tarjeta
+      // (Constelaciones Familiares), no en el logo del hero.
+      if (MOBILE_QUERY.matches) updateCarouselFromScroll();
     }
 
     // Agendar Sesión: el botón siempre lleva directo a WhatsApp.
@@ -2849,3 +3069,4 @@ function drawTodaySpread() {
 
 </body>
 </html>
+
