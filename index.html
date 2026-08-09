@@ -82,6 +82,14 @@
     will-change: transform;
   }
 
+  /* Capa tint superpuesta al fondo cósmico: acá SÍ queremos animar, pero
+     con opacity (barato, va por GPU) en vez de con el gradiente en sí. */
+  .cosmic-bg-tint {
+    opacity: 0;
+    transition: opacity 1s ease;
+    will-change: opacity;
+  }
+
   .stars-layer-1 {
     position: absolute; inset: 0; z-index: 0;
     background-image: 
@@ -1503,6 +1511,12 @@
   </header>
 
   <div class="cosmic-bg" id="main-bg"></div>
+  <!-- Capa "tint" superpuesta: en vez de animar el gradiente del fondo
+       base (carísimo: interpola y repinta pantalla completa por 1.2s en
+       cada cambio de categoría), esta capa recibe el gradiente nuevo de
+       forma instantánea y se desvanece con opacity, que la GPU puede
+       mezclar casi gratis. Ver setCosmicBackground() en el script. -->
+  <div class="cosmic-bg cosmic-bg-tint" id="main-bg-tint"></div>
 
   <div class="parallax-layer" id="parallax-1"><div class="stars-layer-1"></div></div>
   <div class="parallax-layer" id="parallax-2"><div class="stars-layer-2"></div></div>
@@ -1996,10 +2010,33 @@
     const items = document.querySelectorAll('.therapy-item');
     const images = document.querySelectorAll('.portal-img');
     const bgMain = document.getElementById('main-bg');
+    const bgMainTint = document.getElementById('main-bg-tint');
     const playerContainer = document.getElementById('musicPlayerContainer');
     const playBtn = document.getElementById('playBtn');
     const eqBars = document.querySelectorAll('.dynamic-eq');
     const MOBILE_QUERY = window.matchMedia('(max-width: 960px)');
+
+    // El fondo cósmico (.cosmic-bg, pantalla completa y fixed) trae de
+    // estilos.css una transition de "background" de 1.2s — animar el
+    // gradiente en sí es carísimo (interpola y repinta toda la pantalla
+    // en cada frame). Desactivamos esa transición en la capa base y la
+    // reemplazamos por un crossfade con la capa #main-bg-tint: el
+    // gradiente nuevo se aplica instantáneo ahí (invisible, opacity:0) y
+    // se desvanece con opacity — eso sí lo puede resolver la GPU casi
+    // gratis, sin repintar el gradiente en cada frame.
+    if (bgMain) bgMain.style.transition = 'none';
+    let bgFadeTimer = null;
+    function setCosmicBackground(gradientCSS) {
+      if (!bgMain) return;
+      if (!bgMainTint) { bgMain.style.background = gradientCSS; return; }
+      bgMainTint.style.background = gradientCSS;
+      bgMainTint.style.opacity = '1';
+      clearTimeout(bgFadeTimer);
+      bgFadeTimer = setTimeout(() => {
+        bgMain.style.background = gradientCSS;
+        bgMainTint.style.opacity = '0';
+      }, 1050);
+    }
 
     // En mobile, el portal circular (.visual-col) se reubica físicamente
     // dentro de #mobileCarouselStage (arriba del carrusel) para que
@@ -2073,7 +2110,7 @@
         if (logoImg) logoImg.classList.add('active');
       }
 
-      bgMain.style.background = `radial-gradient(circle at 12% 30%, rgba(76, 155, 163, 0.28) 0%, transparent 45%), radial-gradient(circle at 88% 28%, rgba(224, 178, 90, 0.28) 0%, transparent 50%), var(--bg-base)`;
+      setCosmicBackground(`radial-gradient(circle at 12% 30%, rgba(76, 155, 163, 0.28) 0%, transparent 45%), radial-gradient(circle at 88% 28%, rgba(224, 178, 90, 0.28) 0%, transparent 50%), var(--bg-base)`);
 
       playerContainer.style.borderColor = 'var(--gold-dim)';
       playerContainer.style.boxShadow = '0 10px 30px rgba(28, 49, 68, 0.12), 0 0 20px rgba(201, 152, 47, 0.15)';
@@ -2105,7 +2142,7 @@
       // Cambiar fondo cósmico: mantiene el velo de acuarela teal/dorado de marca
       // y suma un matiz sutil del color de la terapia activa
       const newColor = currentItem.getAttribute('data-color');
-      bgMain.style.background = `radial-gradient(circle at 60% 35%, ${newColor}30 0%, transparent 50%), radial-gradient(circle at 12% 30%, rgba(76, 155, 163, 0.28) 0%, transparent 45%), radial-gradient(circle at 88% 28%, rgba(224, 178, 90, 0.28) 0%, transparent 50%), var(--bg-base)`;
+      setCosmicBackground(`radial-gradient(circle at 60% 35%, ${newColor}30 0%, transparent 50%), radial-gradient(circle at 12% 30%, rgba(76, 155, 163, 0.28) 0%, transparent 45%), radial-gradient(circle at 88% 28%, rgba(224, 178, 90, 0.28) 0%, transparent 50%), var(--bg-base)`);
 
       // Cambiar colores dinámicos del reproductor según la sección
       const accentContextColor = currentItem.getAttribute('data-accent');
