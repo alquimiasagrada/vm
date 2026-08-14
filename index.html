@@ -1228,6 +1228,9 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
+    .agenda-badge, .agenda-badge span {
+      animation: none !important;
+    }
     .tarot-card-inner, .tarot-reading, .tarot-front-art {
       transition-duration: 0.25s !important;
     }
@@ -1432,6 +1435,17 @@
     .natal-section { padding: 70px 6vw; }
     .natal-result { flex-direction: column; align-items: center; gap: 2rem; }
     .natal-legend { max-width: 100%; }
+    /* Mismo problema que ya resolviste en .tarot-section: en mobile el
+       formulario y los textos se apilan y ocupan bastante más alto que
+       el estimado de 950px pensado para desktop (aun con el resultado
+       de la carta natal oculto, que es como arranca la sección). Sin
+       este ajuste, al hacer scroll y activarse content-visibility:auto
+       el navegador recalcula el layout de golpe — el tirón "al cargar
+       los íconos separadores" que se siente al entrar a esta sección. */
+    .natal-section { contain-intrinsic-size: auto 1300px; }
+    /* Mismo ajuste para agenda-section (bastante más leve, pero el
+       estimado de 550px también queda corto en mobile). */
+    .agenda-section { contain-intrinsic-size: auto 620px; }
   }
 
   /* =========================================
