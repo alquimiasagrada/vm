@@ -1741,13 +1741,13 @@
 
         <div class="portal-image-container">
           <img src="assets/img/logo-alquimia.jpg" alt="Alquimia Sagrada" class="portal-img active" id="img-logo" fetchpriority="high" decoding="async">
-          <img src="https://i0.wp.com/familyconstellationseurope.com/wp-content/uploads/2025/01/Untitled.jpeg?fit=800%2C800&ssl=1" alt="Constelaciones Familiares" class="portal-img" id="img-0" loading="lazy" decoding="async">
-          <img src="https://images.unsplash.com/photo-1519834785169-98be25ec3f84?auto=format&fit=crop&q=80&w=800" alt="Reiki" class="portal-img" id="img-1" loading="lazy" decoding="async">
-          <img src="https://images.unsplash.com/photo-1499209974431-9dddcece7f88?auto=format&fit=crop&q=80&w=800" alt="Barras de Access" class="portal-img" id="img-2" loading="lazy" decoding="async">
-          <img src="https://images.unsplash.com/photo-1532012197267-da84d127e765?auto=format&fit=crop&q=80&w=800" alt="Registros Akáshicos" class="portal-img" id="img-3" loading="lazy" decoding="async">
-          <img src="https://images.unsplash.com/photo-1544161515-4ab6ce6db874?auto=format&fit=crop&q=80&w=800" alt="Masajes Holísticos" class="portal-img" id="img-4" loading="lazy" decoding="async">
-          <img src="https://images.unsplash.com/photo-1519415510236-718bdfcd89c8?auto=format&fit=crop&q=80&w=800" alt="Reflexología" class="portal-img" id="img-5" loading="lazy" decoding="async">
-          <img src="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&q=80&w=800" alt="Senderismo Holístico" class="portal-img" id="img-6" loading="lazy" decoding="async">
+          <img data-src="assets/img/constelaciones.webp" alt="Constelaciones Familiares" class="portal-img" id="img-0" decoding="async">
+          <img data-src="assets/img/reiki.webp" alt="Reiki" class="portal-img" id="img-1" decoding="async">
+          <img data-src="assets/img/barras-access.webp" alt="Barras de Access" class="portal-img" id="img-2" decoding="async">
+          <img data-src="assets/img/registros-akashicos.webp" alt="Registros Akáshicos" class="portal-img" id="img-3" decoding="async">
+          <img data-src="assets/img/masajes.webp" alt="Masajes Holísticos" class="portal-img" id="img-4" decoding="async">
+          <img data-src="assets/img/reflexologia.webp" alt="Reflexología" class="portal-img" id="img-5" decoding="async">
+          <img data-src="assets/img/senderismo.webp" alt="Senderismo Holístico" class="portal-img" id="img-6" decoding="async">
         </div>
       </div>
     </div>
@@ -2133,7 +2133,25 @@
 
       images.forEach(img => img.classList.remove('active'));
       const targetImg = document.getElementById(`img-${index}`);
-      if(targetImg) targetImg.classList.add('active');
+      if (targetImg) {
+        // La imagen arranca sin src (solo data-src) para no descargar las
+        // 6 fotos de entrada — recién acá, la primera vez que esta
+        // sección se activa, se dispara la petición real.
+        if (targetImg.dataset.src && !targetImg.getAttribute('src')) {
+          targetImg.src = targetImg.dataset.src;
+        }
+        targetImg.classList.add('active');
+
+        // Precarga silenciosa de las fotos vecinas (anterior/siguiente):
+        // para cuando el usuario deslice a la próxima tarjeta, esa foto
+        // ya está en caché y no espera la descarga a mitad del swipe.
+        [index - 1, index + 1].forEach(i => {
+          const neighborImg = document.getElementById(`img-${i}`);
+          if (neighborImg && neighborImg.dataset.src && !neighborImg.getAttribute('src')) {
+            neighborImg.src = neighborImg.dataset.src;
+          }
+        });
+      }
 
       // Cambiar fondo cósmico: mantiene el velo de acuarela teal/dorado de marca
       // y suma un matiz sutil del color de la terapia activa
@@ -3096,3 +3114,4 @@ function drawTodaySpread() {
 
 </body>
 </html>
+
