@@ -743,9 +743,7 @@ const audio = document.getElementById('bg-audio');
         .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
         .replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') + '.jpg'
     }));
-})();
 
-(function () {
 (function () {
     const POSITIONS = [
       { key: 'pasado', label: 'Tu pasado' },
