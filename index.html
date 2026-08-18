@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alquimia Sagrada · Terapias Cósmicas</title>
+
+<!-- Preconexión temprana a los CDNs (los scripts se cargan al final del body
+     para no bloquear el primer renderizado; esto solo adelanta el DNS/TLS) -->
+<link rel="preconnect" href="https://cdnjs.cloudflare.com">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+
+<!-- Precarga de las 3 fuentes que se ven "arriba del pliegue" apenas carga
+     la página (título, tagline y el texto de la máquina de escribir). Esto
+     hace que el navegador empiece a descargarlas en paralelo con el HTML,
+     en vez de recién enterarse de que las necesita cuando ya calculó los
+     estilos — que es lo que causa el salto/demora de 1-2s. -->
+<link rel="preload" href="assets/fonts/Tangerine-Bold.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/Tangerine-Regular.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/CormorantGaramond-Italic.woff2" as="font" type="font/woff2" crossorigin>
+
+<!-- Tipografías: auto-alojadas en assets/fonts/ (ver @font-face en estilos.css) -->
+<link rel="stylesheet" href="assets/css/estilos.css">
+
+<link rel="stylesheet" href="index.css">
+</head>
+<body>
+
+  <!-- HEADER FIJO CON EL NOMBRE DEL EMPRENDIMIENTO -->
+ <header class="site-header">
+   <h1 class="brand-title" data-text="Alquimia Sagrada">
+  Alquimia Sagrada
+</h1>
+    <a href="sobre-mi.html" class="nav-sobre-mi-btn">
+  <span class="btn-icon">👤</span> 
+  <span class="btn-text">Perfil profesional</span>
+</a>
+  </header>
+
+  <div class="cosmic-bg" id="main-bg"></div>
+  <!-- Capa "tint" superpuesta: en vez de animar el gradiente del fondo
+       base (carísimo: interpola y repinta pantalla completa por 1.2s en
+       cada cambio de categoría), esta capa recibe el gradiente nuevo de
+       forma instantánea y se desvanece con opacity, que la GPU puede
+       mezclar casi gratis. Ver setCosmicBackground() en el script. -->
+  <div class="cosmic-bg cosmic-bg-tint" id="main-bg-tint"></div>
+
+  <div class="parallax-layer" id="parallax-1"><div class="stars-layer-1"></div></div>
+  <div class="parallax-layer" id="parallax-2"><div class="stars-layer-2"></div></div>
+
+  <!-- Líneas de constelación (SVG liviano) -->
+  <svg class="constellation-svg" viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid slice">
+    <g class="const-a">
+      <line x1="120" y1="180" x2="240" y2="120" />
+      <line x1="240" y1="120" x2="360" y2="210" />
+      <line x1="360" y1="210" x2="330" y2="330" />
+      <circle cx="120" cy="180" r="2.2" />
+      <circle cx="240" cy="120" r="2.2" />
+      <circle cx="360" cy="210" r="2.2" />
+      <circle cx="330" cy="330" r="2.2" />
+    </g>
+    <g class="const-b">
+      <line x1="760" y1="700" x2="860" y2="640" />
+      <line x1="860" y1="640" x2="920" y2="760" />
+      <line x1="760" y1="700" x2="700" y2="820" />
+      <circle cx="760" cy="700" r="2.2" />
+      <circle cx="860" cy="640" r="2.2" />
+      <circle cx="920" cy="760" r="2.2" />
+      <circle cx="700" cy="820" r="2.2" />
+    </g>
+    <g class="const-a">
+      <line x1="820" y1="140" x2="900" y2="220" />
+      <line x1="900" y1="220" x2="860" y2="320" />
+      <circle cx="820" cy="140" r="2" />
+      <circle cx="900" cy="220" r="2" />
+      <circle cx="860" cy="320" r="2" />
+    </g>
+    <g class="const-b">
+      <line x1="90" y1="750" x2="180" y2="800" />
+      <line x1="180" y1="800" x2="150" y2="900" />
+      <circle cx="90" cy="750" r="2" />
+      <circle cx="180" cy="800" r="2" />
+      <circle cx="150" cy="900" r="2" />
+    </g>
+  </svg>
+
+  <!-- Estrellas con parpadeo (twinkle) aleatorio -->
+  <div class="twinkle-star tw-1"></div>
+  <div class="twinkle-star tw-2 gold"></div>
+  <div class="twinkle-star tw-3"></div>
+  <div class="twinkle-star tw-4 gold"></div>
+  <div class="twinkle-star tw-5"></div>
+  <div class="twinkle-star tw-6 gold"></div>
+  <div class="twinkle-star tw-7"></div>
+  <div class="twinkle-star tw-8"></div>
+
+  <div class="shooting-star ss-1"></div>
+  <div class="shooting-star ss-2"></div>
+  <div class="shooting-star ss-3"></div>
+
+  <div class="mystic-particle mp-1"></div>
+  <div class="mystic-particle mp-2"></div>
+  <div class="mystic-particle mp-3"></div>
+
+  <div class="zodiac-bg z-1">♈</div>
+  <div class="zodiac-bg z-2">♓</div>
+  <div class="zodiac-bg z-3">♋</div>
+  <div class="zodiac-bg z-4">♒</div>
+
+  <div class="cross-flare cf-1"></div>
+  <div class="cross-flare cf-2"></div>
+  <div class="cross-flare cf-3"></div>
+  <div class="cross-flare cf-4"></div>
+  <div class="cross-flare cf-5"></div>
+
+  <div class="grain-overlay"></div>
+
+  <!-- SECCIÓN INTRODUCTORIA TYPEWRITER -->
+  <!-- REPRODUCTOR FLOTANTE (AUDIO NATIVO HTML5) -->
+  <div class="music-player" id="musicPlayerContainer">
+    <button class="play-btn" id="playBtn" onclick="togglePlay()">
+      <span class="play-icon" id="playIcon">▶</span>
+    </button>
+    <div class="music-info">
+      <span class="music-title">Frecuencia Cósmica 432Hz</span>
+      <span class="music-subtitle">Música de Meditación</span>
+    </div>
+    <div class="eq-bars" id="eqBars">
+      <div class="eq-bar dynamic-eq"></div>
+      <div class="eq-bar dynamic-eq"></div>
+      <div class="eq-bar dynamic-eq"></div>
+    </div>
+  </div>
+
+  <!-- Elemento de audio HTML5 directo -->
+  <audio id="bg-audio" loop preload="none">
+    <source src="meditacion.mp3" type="audio/mpeg">
+  </audio>
+
+  <main class="scroll-container">
+    
+    <div class="text-col">
+
+      <div class="hero-block">
+        <img class="item-photo" src="assets/img/logo-alquimia.webp" alt="Alquimia Sagrada" loading="lazy" decoding="async">
+        <div class="typewriter-container">
+          <span id="typewriter-text"></span><span class="cursor-blink"></span>
+        </div>
+        <p class="brand-tagline">El amor ordena, el alma florece.</p>
+      </div>
+
+      <div class="mobile-carousel-stage" id="mobileCarouselStage">
+
+      <div class="therapy-carousel" id="therapyCarousel">
+
+      <div class="therapy-item" data-index="0" data-color="#4ade80" data-accent="#4ade80">
+        <h2>Constelaciones Familiares</h2>
+        <p>Un método sistémico que revela los vínculos invisibles entre generaciones. Como estrellas de un mismo cúmulo, cada miembro de la familia ocupa un lugar y una fuerza que, al ordenarse, libera al sistema entero.</p>
+        <ul class="therapy-benefits">
+          <li>Libera lealtades familiares inconscientes</li>
+          <li>Restaura el orden y la pertenencia</li>
+          <li>Sana patrones heredados repetitivos</li>
+        </ul>
+        <a href="#agendar" class="btn">Agendar Sesión</a>
+      </div>
+
+      <div class="therapy-item" data-index="1" data-color="#facc15" data-accent="#facc15">
+        <h2>Reiki</h2>
+        <p>Canalización de energía universal a través de las manos para equilibrar el cuerpo, la mente y el espíritu. Una corriente sutil que disuelve bloqueos y devuelve la vitalidad a cada capa del ser.</p>
+        <ul class="therapy-benefits">
+          <li>Reduce el estrés y la ansiedad</li>
+          <li>Equilibra los centros energéticos</li>
+          <li>Favorece la relajación profunda</li>
+        </ul>
+        <a href="#agendar" class="btn">Agendar Sesión</a>
+      </div>
+
+      <div class="therapy-item" data-index="2" data-color="#38bdf8" data-accent="#38bdf8">
+        <h2>Barras de Access</h2>
+        <p>Treinta y dos puntos sobre la cabeza que, al ser tocados suavemente, disuelven creencias limitantes acumuladas durante toda una vida. Una técnica precisa como un mapa estelar, dirigida al cambio real.</p>
+        <ul class="therapy-benefits">
+          <li>Libera creencias y patrones mentales</li>
+          <li>Amplía la claridad y la posibilidad</li>
+          <li>Efecto notable desde la primera sesión</li>
+        </ul>
+        <a href="#agendar" class="btn">Agendar Sesión</a>
+      </div>
+
+      <div class="therapy-item" data-index="3" data-color="#e879f9" data-accent="#e879f9">
+        <h2>Registros Akáshicos</h2>
+        <p>El archivo etérico donde queda inscrita cada experiencia del alma a través del tiempo. Consultarlo es abrir un libro cuyas páginas se despliegan en constelaciones de respuestas y propósito.</p>
+        <ul class="therapy-benefits">
+          <li>Claridad sobre el propósito de vida</li>
+          <li>Comprensión de patrones kármicos</li>
+          <li>Guía para decisiones importantes</li>
+        </ul>
+        <a href="#agendar" class="btn">Agendar Sesión</a>
+      </div>
+
+      <div class="therapy-item" data-index="4" data-color="#fb7185" data-accent="#fb7185">
+        <h2>Masajes Holísticos</h2>
+        <p>Manos que leen el cuerpo como un territorio propio, liberando tensión acumulada capa tras capa. Un trabajo que integra técnica y presencia para devolver al cuerpo su estado natural de calma.</p>
+        <ul class="therapy-benefits">
+          <li>Alivia tensión muscular profunda</li>
+          <li>Mejora la circulación y el descanso</li>
+          <li>Reconecta cuerpo y mente</li>
+        </ul>
+        <a href="#agendar" class="btn">Agendar Sesión</a>
+      </div>
+
+      <div class="therapy-item" data-index="5" data-color="#818cf8" data-accent="#818cf8">
+        <h2>Reflexología</h2>
+        <p>Cada punto de la planta del pie es una puerta hacia un órgano o sistema del cuerpo. Presionar con precisión estos puntos es activar un mapa completo de bienestar, trazado como una constelación.</p>
+        <ul class="therapy-benefits">
+          <li>Estimula el equilibrio de órganos internos</li>
+          <li>Mejora la circulación en extremidades</li>
+          <li>Induce un descanso profundo</li>
+        </ul>
+        <a href="#agendar" class="btn">Agendar Sesión</a>
+      </div>
+
+      <div class="therapy-item" data-index="6" data-color="#34d399" data-accent="#34d399">
+        <h2>Senderismo Holístico</h2>
+        <p>Caminatas conscientes en la naturaleza que combinan respiración, silencio y movimiento. Un sendero físico que, paso a paso, se convierte también en un camino interior bajo un cielo abierto.</p>
+        <ul class="therapy-benefits">
+          <li>Reduce el ruido mental y el estrés</li>
+          <li>Fortalece cuerpo y sistema respiratorio</li>
+          <li>Reconecta con los ciclos naturales</li>
+        </ul>
+        <a href="#agendar" class="btn">Agendar Sesión</a>
+      </div>
+
+      </div>
+
+      <div class="carousel-dots" id="therapyDots">
+        <button type="button" class="dot" data-index="0" aria-label="Ir a Constelaciones Familiares"></button>
+        <button type="button" class="dot" data-index="1" aria-label="Ir a Reiki"></button>
+        <button type="button" class="dot" data-index="2" aria-label="Ir a Barras de Access"></button>
+        <button type="button" class="dot" data-index="3" aria-label="Ir a Registros Akáshicos"></button>
+        <button type="button" class="dot" data-index="4" aria-label="Ir a Masajes Holísticos"></button>
+        <button type="button" class="dot" data-index="5" aria-label="Ir a Reflexología"></button>
+        <button type="button" class="dot" data-index="6" aria-label="Ir a Senderismo Holístico"></button>
+      </div>
+
+      </div>
+
+    </div>
+
+    <div class="visual-col">
+      <div class="portal-frame">
+        <div class="orbital-ring"></div>
+        <div class="orbital-ring-outer"></div>
+        <div class="orb orb-1">♄</div>
+        <div class="orb orb-2">☾</div>
+        <div class="orb orb-3"></div>
+
+        <div class="portal-image-container">
+          <img src="assets/img/logo-alquimia.webp" alt="Alquimia Sagrada" class="portal-img active" id="img-logo" fetchpriority="high" decoding="async">
+          <img data-src="assets/img/constelaciones.webp" alt="Constelaciones Familiares" class="portal-img" id="img-0" decoding="async">
+          <img data-src="assets/img/reiki.webp" alt="Reiki" class="portal-img" id="img-1" decoding="async">
+          <img data-src="assets/img/barras-access.webp" alt="Barras de Access" class="portal-img" id="img-2" decoding="async">
+          <img data-src="assets/img/registros-akashicos.webp" alt="Registros Akáshicos" class="portal-img" id="img-3" decoding="async">
+          <img data-src="assets/img/masajes.webp" alt="Masajes Holísticos" class="portal-img" id="img-4" decoding="async">
+          <img data-src="assets/img/reflexologia.webp" alt="Reflexología" class="portal-img" id="img-5" decoding="async">
+          <img data-src="assets/img/senderismo.webp" alt="Senderismo Holístico" class="portal-img" id="img-6" decoding="async">
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- TU CARTA DEL DÍA (TAROT · TIRADA DE 3) -->
+  <section id="carta-del-dia" class="tarot-section">
+    <div class="agenda-badge"><span>✦</span></div>
+    <h2>Tu Lectura del Día</h2>
+    <p class="agenda-sub">Concentrate un instante y tocá cualquier carta para revelar el mensaje que el universo tiene para vos hoy: Llevá tu atención a una pregunta puntual, tocá una carta y descubrí cómo tu pasado, presente y futuro se conectan para darte la respuesta que necesitás hoy.</p>
+
+    <div class="tarot-stage" id="tarot-stage">
+      <div class="tarot-spread" id="tarot-spread"></div>
+
+      <p class="tarot-hint" id="tarot-hint">Tocá las cartas para revelarlas</p>
+      <p class="tarot-status" id="tarot-status"></p>
+
+      <div class="tarot-reading" id="tarot-reading" hidden></div>
+    </div>
+  </section>
+
+  <!-- CALCULADORA DE CARTA NATAL -->
+  <section id="carta-natal" class="natal-section">
+    <div class="agenda-badge"><span>✦</span></div>
+    <h2>Tu Carta Natal</h2>
+    <p class="natal-intro">Conocer las posiciones de tus astros aporta claridad objetiva sobre tus tendencias y desafíos. El trabajo clínico y terapéutico posterior es el que facilita transformar esa información en herramientas prácticas para tu bienestar.</p>
+
+    <p class="agenda-sub">Ingresá tu fecha, hora y lugar de nacimiento para ver el mapa del cielo en el momento en que naciste: tus planetas, tus signos y tus casas.</p>
+
+    <form class="natal-form" id="natal-form">
+      <div class="natal-field">
+        <label for="natal-date">Fecha de nacimiento</label>
+        <input type="date" id="natal-date" required>
+      </div>
+      <div class="natal-field">
+        <label for="natal-time">Hora de nacimiento</label>
+        <input type="time" id="natal-time" required>
+      </div>
+      <div class="natal-field natal-field-wide">
+        <label for="natal-place">Ciudad de nacimiento</label>
+        <input type="text" id="natal-place" placeholder="Ej: Villa María, Argentina" required>
+      </div>
+      <button type="submit" class="btn natal-submit" id="natal-submit">Calcular mi Carta Natal</button>
+    </form>
+
+    <p class="natal-hint">¿No sabés la hora exacta? Usá 12:00 como aproximación — el Ascendente y las casas pueden variar, pero los planetas se mantienen certeros.</p>
+
+    <p class="natal-status" id="natal-status"></p>
+
+    <div class="natal-result" id="natal-result">
+      <div class="natal-wheel-wrap" id="natal-wheel-wrap"></div>
+      <div class="natal-legend" id="natal-legend"></div>
+    </div>
+  </section>
+
+  <!-- SECCIÓN AGENDAR SESIÓN (WHATSAPP) -->
+  <section id="agendar" class="agenda-section">
+    <div class="agenda-badge"><span>✦</span></div>
+    <h2>Agendá tu Sesión</h2>
+    <p class="agenda-sub">Escribime directamente por WhatsApp y coordinamos juntxs el día y horario que mejor te quede.</p>
+    <p class="agenda-selected" id="agenda-selected"></p>
+    <a href="https://wa.me/5493535654858" target="_blank" rel="noopener" class="btn whatsapp-btn" id="whatsapp-cta">
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.46 1.32 4.96L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.21h.01c5.46 0 9.9-4.45 9.9-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2zm0 1.67c2.2 0 4.26.86 5.82 2.42a8.2 8.2 0 0 1 2.41 5.82c0 4.54-3.7 8.24-8.24 8.24a8.2 8.2 0 0 1-4.19-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.18 8.18 0 0 1-1.26-4.4c0-4.54 3.7-8.22 8.25-8.22zm-4.53 4.71c-.16 0-.42.06-.64.3-.22.24-.85.83-.85 2.03 0 1.2.87 2.35.99 2.51.12.16 1.7 2.6 4.12 3.64.58.25 1.03.4 1.38.51.58.18 1.11.16 1.53.1.47-.07 1.44-.59 1.64-1.16.2-.57.2-1.06.14-1.16-.06-.1-.22-.16-.46-.28-.24-.12-1.44-.71-1.66-.79-.22-.08-.38-.12-.55.12-.16.24-.63.79-.77.95-.14.16-.28.18-.52.06-.24-.12-1.02-.38-1.94-1.2-.72-.64-1.2-1.43-1.34-1.67-.14-.24-.02-.37.1-.49.11-.11.24-.28.36-.42.12-.14.16-.24.24-.4.08-.16.04-.3-.02-.42-.06-.12-.55-1.34-.76-1.83-.2-.48-.4-.42-.55-.42h-.14z"/>
+      </svg>
+      <span id="whatsapp-cta-label">¡Quiero agendar una sesión!</span>
+    </a>
+    <p class="agenda-note">Te responderé a la brevedad para confirmar tu sesión.</p>
+  </section>
+
+
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="footer-content">
+      <div class="footer-col">
+        <h3>Alquimia Sagrada</h3>
+        <p>Espacio de sanación y evolución consciente. Un puente entre la energía sutil y tu bienestar integral bajo la guía del universo.</p>
+      </div>
+      <div class="footer-col">
+        <h3>Contacto</h3>
+        <ul class="footer-links">
+          <li><a href="https://wa.me/5493535654858" target="_blank">📞 3535654858</a></li>
+          <li><a href="mailto:ivanalorelamberti@gmail.com">✉️ ivanalorelamberti@gmail.com</a></li>
+          <li><a href="#">📍 Villa María, Cba.</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h3>Redes</h3>
+        <ul class="footer-links">
+          <li><a href="https://instagram.com/alquimia.sagrada.vm" target="_blank">✨ Instagram: @alquimia.sagrada.vm</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 Alquimia Sagrada &middot; Todos los derechos reservados.</p>
+    </div>
+  </footer>
+
+  <script src="guard.js"></script>
+
+  <!-- GSAP & ScrollTrigger (cargados acá, al final, para no bloquear el
+       primer renderizado de la página con conexiones lentas en mobile) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+  <!-- Calculadora de Carta Natal: astronomía, zona horaria histórica y fechas.
+       Las librerías (pesadas) se cargan bajo demanda más abajo, recién
+       cuando la sección #carta-natal entra en pantalla — no todas las
+       visitas llegan a usarla. -->
+
+  <script src="main.js"></script>
+
+</body>
+</html>

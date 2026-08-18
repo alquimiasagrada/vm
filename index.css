@@ -1,0 +1,1490 @@
+/* =========================================
+   ESTILOS PROPIOS · index.html
+   CSS específico de la página principal (no compartido con
+   sobre-mi.html). Extraído del <style> inline para que el navegador
+   pueda cachearlo aparte del HTML.
+   ========================================= */
+/* Estilo para el botón del Header en el index */
+  .nav-sobre-mi-btn {
+    position: static;
+    font-family: var(--font-body);
+    font-size: 0.78rem;
+    font-weight: 500;
+    text-decoration: none;
+    color: var(--text-main);
+    padding: 6px 12px;
+    border-radius: 50px;
+    border: 1px solid var(--gold-dim);
+    background: rgba(255, 250, 240, 0.75);
+    white-space: nowrap;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    z-index: 2;
+  }
+
+  .nav-sobre-mi-btn:hover {
+    color: var(--gold);
+    border-color: var(--gold);
+    transform: translateY(-1px);
+    box-shadow: 0 0 10px rgba(201, 152, 47, 0.2);
+  }
+
+  /* --- ADAPTACIÓN PARA MÓVILES --- */
+  @media (max-width: 480px) {
+    .nav-sobre-mi-btn .btn-text {
+      display: none; 
+    }
+    .nav-sobre-mi-btn {
+      padding: 8px;
+      border-radius: 50%;
+    }
+    .brand-title {
+      font-size: 1.4rem;
+      letter-spacing: 0;
+      margin: 0 5px;
+    }
+  }
+  /* =========================================
+     FONDO CÓSMICO ANIMADO
+     (.cosmic-bg y @keyframes starDrift están en estilos.css; estas capas
+     quedan acá porque usan position:absolute dentro de .parallax-layer
+     para el efecto de scroll, a diferencia de sobre-mi.html)
+     ========================================= */
+  /* Wrapper que recibe el desplazamiento de parallax por scroll (JS),
+     dejando la animación de rotación propia de cada capa intacta */
+  .parallax-layer {
+    position: fixed;
+    inset: -50%;
+    z-index: 0;
+    pointer-events: none;
+    will-change: transform;
+  }
+
+  /* Capa tint superpuesta al fondo cósmico: acá SÍ queremos animar, pero
+     con opacity (barato, va por GPU) en vez de con el gradiente en sí. */
+  .cosmic-bg-tint {
+    opacity: 0;
+    transition: opacity 1s ease;
+    will-change: opacity;
+  }
+
+  .stars-layer-1 {
+    position: absolute; inset: 0; z-index: 0;
+    background-image: 
+      radial-gradient(1px 1px at 10% 20%, rgba(201,152,47,0.55) 100%, transparent),
+      radial-gradient(1px 1px at 80% 40%, rgba(47,118,129,0.45) 100%, transparent),
+      radial-gradient(1.5px 1.5px at 30% 70%, rgba(201,152,47,0.5) 100%, transparent),
+      radial-gradient(1px 1px at 55% 15%, rgba(255,255,255,0.4) 100%, transparent),
+      radial-gradient(1px 1px at 5% 85%, rgba(201,152,47,0.4) 100%, transparent),
+      radial-gradient(1.5px 1.5px at 65% 55%, rgba(47,118,129,0.4) 100%, transparent),
+      radial-gradient(1px 1px at 92% 65%, rgba(255,255,255,0.35) 100%, transparent),
+      radial-gradient(1px 1px at 40% 35%, rgba(201,152,47,0.35) 100%, transparent),
+      radial-gradient(1.5px 1.5px at 75% 90%, rgba(47,118,129,0.35) 100%, transparent),
+      radial-gradient(1px 1px at 15% 45%, rgba(255,255,255,0.3) 100%, transparent);
+    background-size: 250px 250px;
+    opacity: 0.5;
+    animation: starDrift 150s linear infinite;
+    pointer-events: none;
+  }
+
+  .stars-layer-2 {
+    position: absolute; inset: 0; z-index: 0;
+    background-image: 
+      radial-gradient(2px 2px at 90% 80%, rgba(47,118,129,0.35) 100%, transparent),
+      radial-gradient(2px 2px at 50% 10%, rgba(201,152,47,0.5) 100%, transparent),
+      radial-gradient(1px 1px at 20% 50%, rgba(201,152,47,0.4) 100%, transparent),
+      radial-gradient(1.5px 1.5px at 35% 85%, rgba(255,255,255,0.35) 100%, transparent),
+      radial-gradient(1px 1px at 70% 25%, rgba(47,118,129,0.3) 100%, transparent),
+      radial-gradient(2px 2px at 10% 15%, rgba(201,152,47,0.3) 100%, transparent),
+      radial-gradient(1px 1px at 85% 55%, rgba(255,255,255,0.3) 100%, transparent);
+    background-size: 400px 400px;
+    opacity: 0.5;
+    animation: starDrift 90s linear infinite reverse;
+    pointer-events: none;
+  }
+
+  /* =========================================
+     TWINKLE ALEATORIO
+     ========================================= */
+  .twinkle-star {
+    position: fixed;
+    width: 2px; height: 2px;
+    background: var(--teal);
+    color: var(--teal);
+    border-radius: 50%;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0;
+    animation: twinkle 4s ease-in-out infinite;
+  }
+  .twinkle-star.gold { background: var(--gold); color: var(--gold); }
+
+  @keyframes twinkle {
+    0%, 100% { opacity: 0; transform: scale(0.6); }
+    50% { opacity: 1; transform: scale(1.6); box-shadow: 0 0 6px 1px currentColor; }
+  }
+
+  .tw-1 { top: 12%; left: 22%; animation-duration: 3.2s; animation-delay: 0.2s; }
+  .tw-2 { top: 68%; left: 8%; animation-duration: 4.5s; animation-delay: 1.1s; color: var(--gold); }
+  .tw-3 { top: 24%; left: 78%; animation-duration: 3.8s; animation-delay: 2s; }
+  .tw-4 { top: 82%; left: 60%; animation-duration: 5s; animation-delay: 0.6s; color: var(--gold); }
+  .tw-5 { top: 40%; left: 92%; animation-duration: 3.5s; animation-delay: 1.6s; }
+  .tw-6 { top: 55%; left: 35%; animation-duration: 4.2s; animation-delay: 2.6s; color: var(--gold); }
+  .tw-7 { top: 6%; left: 55%; animation-duration: 3.9s; animation-delay: 0.9s; }
+  .tw-8 { top: 90%; left: 15%; animation-duration: 4.7s; animation-delay: 1.9s; }
+
+  /* =========================================
+     PARTÍCULAS MÍSTICAS
+     Pocas, grandes y lentas: todo el "costo" es un único radial-gradient
+     por partícula (sin blur ni box-shadow) y una animación que solo usa
+     transform/opacity — igual de liviano en un celular de gama baja que
+     en desktop, así que se dejan activas en todos los tamaños de pantalla.
+     ========================================= */
+  .mystic-particle {
+    position: fixed;
+    z-index: 0;
+    border-radius: 50%;
+    pointer-events: none;
+    background: radial-gradient(circle, rgba(201,152,47,0.22) 0%, rgba(201,152,47,0.07) 45%, transparent 72%);
+    animation: floatMystic 26s ease-in-out infinite;
+    will-change: transform;
+  }
+  .mp-1 {
+    width: 220px; height: 220px;
+    top: 14%; left: 6%;
+    animation-duration: 27s;
+  }
+  .mp-2 {
+    width: 170px; height: 170px;
+    bottom: 10%; right: 8%;
+    background: radial-gradient(circle, rgba(47,118,129,0.2) 0%, rgba(47,118,129,0.06) 45%, transparent 72%);
+    animation-duration: 33s;
+    animation-delay: -9s;
+  }
+  .mp-3 {
+    width: 260px; height: 260px;
+    top: 52%; right: 22%;
+    animation-duration: 40s;
+    animation-delay: -17s;
+  }
+
+  @keyframes floatMystic {
+    0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.65; }
+    50% { transform: translate(36px, -54px) scale(1.15); opacity: 1; }
+  }
+
+  /* =========================================
+     CONSTELACIÓN SVG
+     ========================================= */
+  .constellation-svg {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    opacity: 0.35;
+  }
+  .constellation-svg circle { fill: var(--gold); }
+  .constellation-svg line {
+    stroke: var(--gold);
+    stroke-width: 0.6;
+    stroke-dasharray: 4 3;
+    animation: constellationFade 8s ease-in-out infinite alternate;
+  }
+  .constellation-svg .const-b line { animation-delay: -3s; }
+
+  @keyframes constellationFade {
+    0% { opacity: 0.15; }
+    100% { opacity: 0.55; }
+  }
+
+  .shooting-star {
+    position: fixed; z-index: 0;
+    width: 2px; height: 80px;
+    background: linear-gradient(to bottom, rgba(201,152,47,0.85), transparent);
+    border-radius: 50%;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .ss-1 { top: -10%; left: 30%; animation: shoot 8s linear infinite 2s; }
+  .ss-2 { top: -10%; right: 20%; animation: shoot 12s linear infinite 7s; }
+  .ss-3 { top: 20%; right: -10%; animation: shoot 15s linear infinite 4s; }
+
+  @keyframes shoot {
+    0% { transform: translate(0, 0) rotate(45deg) scale(0); opacity: 0; }
+    5% { transform: translate(-50px, 50px) rotate(45deg) scale(1.5); opacity: 1; }
+    15% { transform: translate(-300px, 300px) rotate(45deg) scale(0); opacity: 0; }
+    100% { opacity: 0; }
+  }
+
+  .cross-flare {
+    position: fixed;
+    width: 2px; height: 2px;
+    background: var(--gold);
+    border-radius: 50%;
+    box-shadow: 0 0 10px 2px rgba(201,152,47,0.5);
+    animation: pulseFlare 5s infinite alternate ease-in-out;
+    pointer-events: none;
+    z-index: 1;
+  }
+  .cross-flare::before, .cross-flare::after {
+    content: ''; position: absolute;
+    top: 50%; left: 50%; transform: translate(-50%, -50%);
+    background: linear-gradient(90deg, transparent, rgba(201,152,47,0.6), transparent);
+  }
+  .cross-flare::before { width: 40px; height: 1px; }
+  .cross-flare::after { width: 1px; height: 40px; }
+  
+  .cf-1 { top: 20%; left: 12%; animation-duration: 4s; }
+  .cf-2 { top: 75%; left: 45%; animation-delay: -2s; animation-duration: 6s; }
+  .cf-3 { top: 30%; right: 18%; animation-delay: -1s; }
+  .cf-4 { top: 85%; right: 35%; animation-delay: -3s; animation-duration: 7s; }
+  .cf-5 { top: 10%; right: 45%; animation-delay: -4s; }
+
+  @keyframes pulseFlare {
+    0% { transform: scale(0.6) rotate(-15deg); opacity: 0.3; }
+    100% { transform: scale(1.2) rotate(15deg); opacity: 1; filter: drop-shadow(0 0 12px var(--gold)); }
+  }
+
+  .zodiac-bg {
+    position: fixed; font-family: serif; color: rgba(28, 49, 68, 0.04);
+    font-size: 7rem; pointer-events: none; z-index: 0;
+    animation: floatZodiac 20s ease-in-out infinite alternate;
+  }
+  .z-1 { top: 15%; left: 5%; }
+  .z-2 { top: 65%; left: 8%; animation-delay: -5s; animation-duration: 25s; }
+  .z-3 { top: 20%; right: 8%; animation-delay: -10s; }
+  .z-4 { top: 80%; right: 12%; animation-delay: -15s; animation-duration: 22s; }
+
+  @keyframes floatZodiac {
+    0% { transform: translate(0, 0) rotate(0deg); }
+    100% { transform: translate(30px, -20px) rotate(10deg); }
+  }
+
+  /* =========================================
+     INTRODUCCIÓN / TYPEWRITER (SEMI-CURSIVA)
+     ========================================= */
+  .hero-block {
+    min-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .hero-block .item-photo { display: none; }
+
+  .typewriter-container {
+    font-family: var(--font-heading);
+    font-style: italic;
+    font-weight: 400;
+    font-size: clamp(1.2rem, 2vw, 1.6rem);
+    color: var(--gold);
+    line-height: 1.5;
+    letter-spacing: 0.05em;
+    min-height: 3.2em; /* Espacio reservado para evitar saltos */
+    text-shadow: 0 0 15px rgba(201, 152, 47, 0.15);
+  }
+
+  .brand-tagline {
+    font-family: var(--font-script);
+    font-size: clamp(1.6rem, 2.6vw, 2.1rem);
+    color: var(--teal);
+    margin-top: 0.5rem;
+  }
+
+  .cursor-blink {
+    display: inline-block;
+    width: 2px;
+    height: 1.2em;
+    background-color: var(--gold);
+    margin-left: 4px;
+    vertical-align: middle;
+    animation: blinkCursor 0.8s infinite;
+  }
+
+  @keyframes blinkCursor {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+
+  .eq-bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+    height: 12px;
+    margin-left: 4px;
+  }
+  .eq-bar {
+    width: 2px;
+    background: var(--gold);
+    height: 3px;
+    transform-origin: bottom;
+    transition: background 0.4s ease;
+  }
+  .playing .eq-bar:nth-child(1) { animation: bounceEq 0.6s infinite alternate; }
+  .playing .eq-bar:nth-child(2) { animation: bounceEq 0.4s infinite alternate; animation-delay: 0.1s; }
+  .playing .eq-bar:nth-child(3) { animation: bounceEq 0.5s infinite alternate; animation-delay: 0.2s; }
+
+  @keyframes bounceEq {
+    0% { transform: scaleY(1); }
+    100% { transform: scaleY(4); }
+  }
+
+  /* =========================================
+     LAYOUT SPLIT SCROLL
+     ========================================= */
+  .scroll-container {
+    display: flex;
+    position: relative;
+    z-index: 10;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2vh 4vw 0;
+  }
+
+  .text-col {
+    width: 50%;
+    padding: 10vh 5vw 10vh 0;
+  }
+
+  .therapy-item {
+    min-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    opacity: 0.2;
+    transition: opacity 0.6s ease;
+  }
+  .therapy-item.active { opacity: 1; }
+
+  .item-photo { display: none; }
+
+  /* =========================================
+     FADE-UP AL ENTRAR EN PANTALLA
+     (la clase .in-view se agrega por JS via IntersectionObserver)
+     ========================================= */
+  .therapy-item h2,
+  .therapy-item p,
+  .therapy-item .btn {
+    opacity: 0;
+    transform: translateY(26px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .therapy-item.in-view h2 { opacity: 1; transform: translateY(0); }
+  .therapy-item.in-view p { opacity: 1; transform: translateY(0); transition-delay: 0.12s; }
+  .therapy-item.in-view .btn { opacity: 1; transform: translateY(0); transition-delay: 0.55s; }
+
+  .therapy-item h2 {
+    font-family: var(--font-heading);
+    font-size: clamp(3rem, 4.5vw, 4rem);
+    font-weight: 700;
+    line-height: 1.1;
+    margin-bottom: 1.5rem;
+    color: var(--ink);
+    text-shadow: 0 2px 10px rgba(28, 49, 68, 0.08);
+  }
+
+  .therapy-item p {
+    font-size: 1.15rem;
+    line-height: 1.7;
+    color: var(--text-muted);
+    max-width: 500px;
+    margin-bottom: 1.5rem;
+  }
+
+  .therapy-benefits {
+    list-style: none;
+    margin-bottom: 2rem;
+    max-width: 500px;
+  }
+  .therapy-benefits li {
+    position: relative;
+    padding-left: 1.5rem;
+    margin-bottom: 0.75rem;
+    color: var(--text-muted);
+    font-size: 1.05rem;
+    line-height: 1.5;
+    opacity: 0;
+    transform: translateX(-16px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+  .therapy-item.in-view .therapy-benefits li { opacity: 1; transform: translateX(0); }
+  .therapy-item.in-view .therapy-benefits li:nth-child(1) { transition-delay: 0.22s; }
+  .therapy-item.in-view .therapy-benefits li:nth-child(2) { transition-delay: 0.36s; }
+  .therapy-item.in-view .therapy-benefits li:nth-child(3) { transition-delay: 0.5s; }
+
+  .therapy-benefits li::before {
+    content: '✦';
+    position: absolute;
+    left: 0;
+    color: var(--gold);
+    font-size: 0.9rem;
+    top: 2px;
+  }
+  /* Destello secuencial de cada ícono al entrar en pantalla */
+  .therapy-item.in-view .therapy-benefits li:nth-child(1)::before { animation: iconFlash 0.6s ease-out 0.3s both; }
+  .therapy-item.in-view .therapy-benefits li:nth-child(2)::before { animation: iconFlash 0.6s ease-out 0.44s both; }
+  .therapy-item.in-view .therapy-benefits li:nth-child(3)::before { animation: iconFlash 0.6s ease-out 0.58s both; }
+
+  @keyframes iconFlash {
+    0% { transform: scale(0.2); opacity: 0; text-shadow: none; }
+    55% { transform: scale(1.5); opacity: 1; text-shadow: 0 0 12px var(--gold); }
+    100% { transform: scale(1); opacity: 1; text-shadow: 0 0 4px rgba(201, 152, 47, 0.5); }
+  }
+
+  .btn {
+    display: inline-block;
+    position: relative;
+    padding: 1rem 2.5rem;
+    border-radius: 50px;
+    background: var(--gold);
+    color: var(--ink);
+    font-weight: 600;
+    text-decoration: none;
+    letter-spacing: 1px;
+    font-size: 0.9rem;
+    width: fit-content;
+    box-shadow: 0 4px 20px rgba(201, 152, 47, 0.35);
+    transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.4s ease;
+  }
+  .btn:hover {
+    transform: translateY(-3px);
+  }
+
+  /* Partícula de energía que recorre el borde del botón al hacer hover */
+  .btn::after {
+    content: '';
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 0 8px 3px rgba(255, 255, 255, 0.9), 0 0 16px 4px var(--gold);
+    top: 0;
+    left: 0;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .btn:hover::after {
+    animation: sparkOrbit 1.6s linear infinite;
+  }
+
+  @keyframes sparkOrbit {
+    0%   { top: 4%;  left: 2%;  opacity: 1; }
+    24%  { top: 4%;  left: 96%; opacity: 1; }
+    26%  { top: 4%;  left: 96%; opacity: 0.7; }
+    49%  { top: 96%; left: 96%; opacity: 1; }
+    51%  { top: 96%; left: 96%; opacity: 0.7; }
+    74%  { top: 96%; left: 2%;  opacity: 1; }
+    76%  { top: 96%; left: 2%;  opacity: 0.7; }
+    100% { top: 4%;  left: 2%;  opacity: 1; }
+  }
+
+  .visual-col {
+    width: 50%;
+    height: 100vh;
+    position: sticky;
+    top: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .portal-frame {
+    position: relative;
+    width: min(42vw, 550px);
+    aspect-ratio: 1/1;
+    border-radius: 50%;
+    border: 1px solid var(--gold-dim);
+    box-shadow: 0 0 50px rgba(0,0,0,0.8), inset 0 0 30px var(--gold-dim);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: portalBreathe 5.5s ease-in-out infinite;
+  }
+
+  @keyframes portalBreathe {
+    0%, 100% {
+      box-shadow: 0 0 50px rgba(0,0,0,0.8), inset 0 0 30px var(--gold-dim);
+      border-color: var(--gold-dim);
+    }
+    50% {
+      box-shadow: 0 0 75px rgba(0,0,0,0.8), inset 0 0 45px rgba(201, 152, 47, 0.35), 0 0 30px rgba(201, 152, 47, 0.2);
+      border-color: rgba(201, 152, 47, 0.45);
+    }
+  }
+
+  /* Anillos orbitales alrededor del portal, como órbitas de un sistema estelar */
+  .orbital-ring {
+    position: absolute;
+    inset: -22px;
+    border: 1px dashed var(--gold-dim);
+    border-radius: 50%;
+    pointer-events: none;
+    animation: orbitalSpin 45s linear infinite;
+  }
+  .orbital-ring-outer {
+    position: absolute;
+    inset: -44px;
+    border: 1px dashed rgba(201, 152, 47, 0.15);
+    border-radius: 50%;
+    pointer-events: none;
+    animation: orbitalSpin 70s linear infinite reverse;
+  }
+
+  @keyframes orbitalSpin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  .portal-image-container {
+    position: absolute;
+    inset: 15px; 
+    border-radius: 50%;
+    overflow: hidden;
+    background: #000;
+    mask-image: radial-gradient(white, black);
+    -webkit-mask-image: -webkit-radial-gradient(white, black);
+  }
+
+  .portal-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transform: scale(1.1);
+    filter: brightness(0.75) contrast(1.1);
+    transition: opacity 0.8s ease, transform 1.2s cubic-bezier(0.25, 1, 0.5, 1);
+    /* Sin esto, cada cambio de foto obliga al navegador a recomponer a
+       mano la máscara circular del contenedor en cada frame de la
+       transición (hasta 1.2s). Con will-change, el navegador arma de
+       antemano una capa GPU dedicada para cada foto y solo tiene que
+       mezclarlas — mismo resultado visual, mucho más barato. */
+    will-change: opacity, transform;
+  }
+  .portal-img.active {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .orb {
+    position: absolute;
+    z-index: 3;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    color: #fff;
+    box-shadow: 0 0 20px currentColor;
+    animation: floatOrb 5s ease-in-out infinite alternate;
+  }
+  .orb-1 { width: 32px; height: 32px; top: 10%; right: -20px; background: #8b5cf6; color: #8b5cf6; }
+  .orb-2 { width: 25px; height: 25px; bottom: 20%; left: -25px; background: #3b82f6; color: #3b82f6; animation-delay: -2s;}
+  .orb-3 { width: 22px; height: 22px; bottom: -5px; right: 20%; background: var(--gold); color: var(--gold); animation-delay: -4s;}
+
+  @keyframes floatOrb {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(-15px); }
+  }
+
+  /* =========================================
+     CARRUSEL DE TERAPIAS (solo mobile)
+     En escritorio .therapy-carousel es un wrapper invisible (display:
+     contents) para no alterar en nada el layout de scroll vertical
+     existente; toma forma de carrusel horizontal recién dentro del
+     media query de abajo. Los puntitos de progreso solo existen en mobile.
+     ========================================= */
+  .therapy-carousel { display: contents; }
+  .carousel-dots { display: none; }
+  .mobile-carousel-stage { display: contents; }
+
+  /* =========================================
+     SECCIÓN AGENDAR SESIÓN (WHATSAPP)
+     ========================================= */
+  .agenda-section {
+    position: relative;
+    z-index: 15;
+    scroll-margin-top: 90px;
+    padding: 110px 6vw;
+    text-align: center;
+    background: rgba(255, 250, 240, 0.5);
+    border-top: 1px solid rgba(201, 152, 47, 0.2);
+    border-bottom: 1px solid rgba(201, 152, 47, 0.2);
+    content-visibility: auto;
+    contain-intrinsic-size: auto 550px;
+  }
+
+  .agenda-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: 1px dashed var(--gold-dim);
+    margin-bottom: 1.5rem;
+    font-size: 1.4rem;
+    color: var(--gold);
+    animation: orbitalSpin 30s linear infinite;
+  }
+  .agenda-badge span { display: inline-block; animation: orbitalSpin 30s linear infinite reverse; }
+
+  .agenda-section h2 {
+    font-family: var(--font-heading);
+    font-size: clamp(2.2rem, 4.5vw, 3rem);
+    font-weight: 700;
+    margin-bottom: 0.9rem;
+  }
+
+  .agenda-sub {
+    color: var(--text-muted);
+    max-width: 480px;
+    margin: 0 auto 0.75rem;
+    font-size: 1.05rem;
+    line-height: 1.6;
+  }
+
+  .natal-section .agenda-sub {
+    padding-top: 1.4rem;
+    margin-top: 0.5rem;
+    border-top: 1px solid rgba(201, 152, 47, 0.18);
+  }
+
+  .agenda-selected {
+    color: var(--gold);
+    font-size: 0.9rem;
+    letter-spacing: 0.03em;
+    min-height: 1.4em;
+    margin-bottom: 1.5rem;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+  .agenda-selected.visible { opacity: 1; }
+
+  .whatsapp-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1rem;
+    padding: 1.1rem 2.8rem;
+    border: none;
+    cursor: pointer;
+    font-family: var(--font-body);
+  }
+  .whatsapp-btn svg { width: 20px; height: 20px; flex-shrink: 0; }
+
+  .agenda-note {
+    margin-top: 1.5rem;
+    color: rgba(92, 109, 126, 0.8);
+    font-size: 0.85rem;
+  }
+
+  /* =========================================
+     CALCULADORA DE CARTA NATAL
+     ========================================= */
+  .natal-section {
+    position: relative;
+    z-index: 15;
+    padding: 100px 6vw;
+    text-align: center;
+    background: rgba(255, 250, 240, 0.4);
+    border-bottom: 1px solid rgba(201, 152, 47, 0.2);
+    content-visibility: auto;
+    contain-intrinsic-size: auto 950px;
+  }
+
+  .natal-form {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1.1rem;
+    max-width: 640px;
+    margin: 2.2rem auto 0;
+  }
+
+  .natal-field {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    gap: 0.4rem;
+    flex: 1 1 180px;
+  }
+  .natal-field-wide { flex: 1 1 100%; }
+
+  .natal-field label {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    letter-spacing: 0.02em;
+  }
+
+  .natal-field input {
+    font-family: var(--font-body);
+    font-size: 1rem;
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
+    border: 1px solid var(--gold-dim);
+    background: rgba(255, 253, 248, 0.9);
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+  .natal-field input:focus {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(201, 152, 47, 0.15);
+  }
+
+  .natal-submit {
+    flex: 1 1 100%;
+    margin: 0.6rem auto 0;
+    border: none;
+  }
+
+  .natal-hint {
+    max-width: 480px;
+    margin: 1.2rem auto 0;
+    font-size: 0.85rem;
+    color: rgba(92, 109, 126, 0.8);
+    font-style: italic;
+  }
+
+  .natal-intro {
+    max-width: 560px;
+    margin: 0 auto 2.2rem;
+    font-size: 0.98rem;
+    line-height: 1.7;
+    color: var(--text-muted);
+  }
+
+  .natal-status {
+    min-height: 1.4em;
+    margin-top: 1rem;
+    color: var(--teal);
+    font-size: 0.9rem;
+  }
+  .natal-status.error { color: #b5533c; }
+
+  .natal-result {
+    display: none;
+    max-width: 900px;
+    margin: 2.5rem auto 0;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 3rem;
+    flex-wrap: wrap;
+  }
+  .natal-result.visible { display: flex; }
+
+  .natal-wheel-wrap {
+    width: min(90vw, 420px);
+    aspect-ratio: 1/1;
+    flex-shrink: 0;
+  }
+  .natal-wheel-wrap svg { width: 100%; height: 100%; }
+
+  .natal-legend {
+    flex: 1 1 260px;
+    text-align: left;
+    max-width: 340px;
+  }
+  .natal-legend-item {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.55rem 0;
+    border-bottom: 1px solid rgba(28, 49, 68, 0.08);
+    font-size: 0.95rem;
+  }
+  .natal-legend-item:last-child { border-bottom: none; }
+  .natal-legend-planet {
+    color: var(--ink);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .natal-legend-planet .glyph {
+    color: var(--gold);
+    font-size: 1.1rem;
+    width: 1.2em;
+    text-align: center;
+  }
+  .natal-legend-detail {
+    color: var(--text-muted);
+    font-size: 0.88rem;
+    white-space: nowrap;
+  }
+  .natal-legend-heading {
+    font-family: var(--font-heading);
+    font-style: italic;
+    color: var(--teal);
+    margin-bottom: 0.6rem;
+    font-size: 1.1rem;
+  }
+
+  /* =========================================
+     TU CARTA DEL DÍA (TAROT · CARTA ÚNICA)
+     ========================================= */
+  .tarot-section {
+    position: relative;
+    z-index: 15;
+    padding: 100px 6vw;
+    text-align: center;
+    background: rgba(255, 250, 240, 0.35);
+    border-bottom: 1px solid rgba(201, 152, 47, 0.2);
+    content-visibility: auto;
+    contain-intrinsic-size: auto 850px;
+  }
+
+  .tarot-section h2 {
+    font-family: var(--font-heading);
+    font-size: clamp(2.2rem, 4.5vw, 3rem);
+    font-weight: 700;
+    margin-bottom: 0.9rem;
+  }
+
+  .tarot-stage {
+    margin-top: 2.5rem;
+  }
+
+  /* ---- Tirada de 3 cartas ---- */
+  .tarot-spread {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: clamp(0.8rem, 3vw, 2.2rem);
+    flex-wrap: wrap;
+  }
+
+  .tarot-slot {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.7rem;
+    width: min(26vw, 155px);
+  }
+
+  .tarot-position-label {
+    font-family: var(--font-heading);
+    font-style: italic;
+    color: var(--teal);
+    font-size: 0.85rem;
+    line-height: 1.25;
+    min-height: 2.4em;
+  }
+
+  .tarot-slot .tarot-card-single {
+    width: 100%;
+  }
+
+  @media (max-width: 480px) {
+    .tarot-spread { gap: 0.6rem; }
+    .tarot-slot { width: 28vw; }
+    .tarot-position-label { font-size: 0.72rem; }
+  }
+
+  /* ---- Carrusel en mobile: una carta grande al centro, dos espiando a
+     los costados. Se activa solo bajo este breakpoint — en desktop la
+     tirada sigue siendo la fila de 3 de siempre, sin cambios. ---- */
+  @media (max-width: 640px) {
+    .tarot-spread.tarot-spread--coverflow {
+      position: relative;
+      height: 360px;
+      display: block;
+      flex-wrap: nowrap;
+    }
+    .tarot-spread--coverflow .tarot-slot {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      width: min(58vw, 190px);
+      transition: transform 0.5s cubic-bezier(0.4, 0.15, 0.2, 1), opacity 0.5s ease;
+      cursor: pointer;
+    }
+    .tarot-spread--coverflow .tarot-slot .tarot-card-single {
+      cursor: pointer;
+    }
+  }
+
+  .tarot-card-single {
+    position: relative;
+    width: min(62vw, 250px);
+    aspect-ratio: 5/8;
+    margin: 0 auto;
+    -webkit-perspective: 1400px;
+    perspective: 1400px;
+    border: none;
+    background: none;
+    padding: 0;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    /* El drop-shadow va acá (afuera del elemento 3D) y no en
+       .tarot-card-inner: aplicar filter junto con transform-style:
+       preserve-3d en el MISMO elemento aplana el contexto 3D en varios
+       navegadores (sobre todo Safari/iOS), y el giro de la tarjeta deja de
+       funcionar como una vuelta real. */
+    filter: drop-shadow(0 14px 34px rgba(28, 49, 68, 0.28));
+  }
+  .tarot-card-single:focus-visible { outline: 2px solid var(--gold); outline-offset: 6px; border-radius: 14px; }
+  .tarot-card-single.tarot-revealed { cursor: default; }
+
+  .tarot-card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    -webkit-transform-style: preserve-3d;
+    transform-style: preserve-3d;
+    transition: -webkit-transform 1s cubic-bezier(0.4, 0.15, 0.2, 1), transform 1s cubic-bezier(0.4, 0.15, 0.2, 1);
+  }
+  .tarot-card-single.tarot-flipped .tarot-card-inner {
+    -webkit-transform: rotateY(180deg);
+    transform: rotateY(180deg);
+  }
+  .tarot-card-single:not(.tarot-revealed):hover .tarot-card-inner {
+    -webkit-transform: translateY(-6px);
+    transform: translateY(-6px);
+  }
+
+  .tarot-face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    border-radius: 14px;
+    border: 1px solid var(--gold-dim);
+  }
+  /* El recorte (overflow + radio) va en un wrapper interno separado del
+     elemento que tiene backface-visibility. Ponerlos juntos en el mismo
+     elemento rompe el "ocultar cara trasera" en varios navegadores (sobre
+     todo mobile), dejando el dorso pisando al frente después de girar. */
+  .tarot-face-clip {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .tarot-face-back .tarot-face-clip {
+    background:
+      repeating-linear-gradient(45deg, rgba(201,152,47,0.08) 0 8px, transparent 8px 16px),
+      linear-gradient(160deg, #23384c, var(--ink));
+  }
+  .tarot-face-back::before {
+    content: '✧';
+    color: var(--gold);
+    font-size: 2.2rem;
+    text-shadow: 0 0 14px rgba(201, 152, 47, 0.6);
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+    pointer-events: none;
+  }
+  .tarot-face-back img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .tarot-face-front {
+    -webkit-transform: rotateY(180deg);
+    transform: rotateY(180deg);
+  }
+  .tarot-face-front .tarot-face-clip {
+    background: linear-gradient(165deg, #fffaf0, #f3e8d3);
+    flex-direction: column;
+    padding: 10px;
+    gap: 4px;
+  }
+  /* Efecto de revelación: un brillo que cruza la carta + un pequeño "pop"
+     de escala, UNA sola vez al girar (no en loop). Solo anima
+     transform/opacity —lo procesa el GPU por composición, sin recalcular
+     layout ni repintar— así que el costo es mínimo incluso en celulares
+     viejos. Respeta prefers-reduced-motion más abajo. */
+  .tarot-face-front .tarot-face-clip::after {
+    content: '';
+    position: absolute;
+    inset: -20% -60%;
+    background: linear-gradient(100deg, transparent 42%, rgba(255,255,255,0.6) 50%, transparent 58%);
+    transform: translateX(-130%);
+    opacity: 0;
+    pointer-events: none;
+  }
+  .tarot-card-single.tarot-flipped .tarot-face-front .tarot-face-clip::after {
+    animation: tarotShine 0.8s ease-out 0.75s 1 both;
+  }
+  @keyframes tarotShine {
+    0% { transform: translateX(-130%); opacity: 0; }
+    18% { opacity: 1; }
+    100% { transform: translateX(130%); opacity: 0; }
+  }
+  .tarot-card-single.tarot-flipped .tarot-face-front .tarot-face-clip {
+    animation: tarotPop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) 0.75s 1 both;
+  }
+  @keyframes tarotPop {
+    0% { transform: scale(0.94); }
+    100% { transform: scale(1); }
+  }
+  .tarot-front-art {
+    width: 100%;
+    flex: 1;
+    border-radius: 8px;
+    border: 1px dashed var(--gold-dim);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--gold);
+    font-size: 2.4rem;
+    overflow: hidden;
+    transition: transform 0.4s ease;
+  }
+  .tarot-front-art img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+  }
+  .tarot-card-single.tarot-reversed .tarot-front-art { transform: rotate(180deg); }
+
+  .tarot-front-number {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    color: var(--gold);
+    font-size: 1rem;
+  }
+  .tarot-front-name {
+    font-size: 0.85rem;
+    color: var(--ink);
+    text-align: center;
+    line-height: 1.2;
+  }
+  .tarot-front-orientation {
+    font-size: 0.68rem;
+    letter-spacing: 0.04em;
+    color: var(--teal);
+    text-transform: uppercase;
+  }
+
+  .tarot-hint {
+    margin-top: 1.4rem;
+    font-family: var(--font-heading);
+    font-style: italic;
+    color: var(--gold);
+    font-size: 1.1rem;
+  }
+
+  .tarot-status {
+    margin-top: 0.8rem;
+    font-size: 0.85rem;
+    color: rgba(92, 109, 126, 0.85);
+    min-height: 1.2em;
+  }
+  .tarot-status.error { color: #b5533c; }
+
+  .tarot-reading {
+    max-width: 620px;
+    margin: 2.4rem auto 0;
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+    text-align: left;
+  }
+  .tarot-reading.visible { opacity: 1; transform: translateY(0); }
+  .tarot-reading[hidden] { display: none; }
+
+  .tarot-reading-card {
+    padding: 1.4rem 0;
+    border-bottom: 1px solid rgba(201, 152, 47, 0.18);
+  }
+  .tarot-reading-card:first-child { padding-top: 0; }
+  .tarot-reading-card:last-of-type { border-bottom: none; }
+
+  .tarot-reading-position {
+    font-family: var(--font-heading);
+    font-style: italic;
+    color: var(--teal);
+    font-size: 0.95rem;
+    margin-bottom: 0.4rem;
+  }
+
+  .tarot-reading-title {
+    font-family: var(--font-heading);
+    font-size: clamp(1.35rem, 3vw, 1.7rem);
+    color: var(--ink);
+    display: inline-block;
+    margin-right: 0.6rem;
+  }
+  .tarot-reading-orientation {
+    display: inline-block;
+    font-size: 0.68rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--teal);
+    border: 1px solid var(--teal-dim);
+    border-radius: 50px;
+    padding: 1px 10px;
+    vertical-align: middle;
+  }
+  .tarot-reading-meaning {
+    color: var(--gold);
+    font-family: var(--font-heading);
+    font-style: italic;
+    font-size: 1.05rem;
+    margin: 0.5rem 0 0.5rem;
+  }
+  .tarot-reading-desc {
+    color: var(--text-muted);
+    font-size: 0.98rem;
+    line-height: 1.65;
+  }
+
+  .tarot-reading-synthesis {
+    margin-top: 1.6rem;
+    padding-top: 1.6rem;
+    border-top: 1px solid rgba(201, 152, 47, 0.3);
+    text-align: center;
+  }
+  .tarot-reading-synthesis-label {
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(92, 109, 126, 0.75);
+    margin-bottom: 0.5rem;
+  }
+  .tarot-reading-synthesis-text {
+    font-family: var(--font-heading);
+    font-style: italic;
+    font-size: 1.15rem;
+    color: var(--ink);
+    line-height: 1.5;
+  }
+
+  .tarot-next {
+    display: block;
+    text-align: center;
+    margin-top: 1.6rem;
+    font-size: 0.85rem;
+    color: rgba(92, 109, 126, 0.8);
+  }
+
+  @media (max-width: 640px) {
+    .tarot-section { padding: 70px 6vw; }
+    /* En mobile, la tirada usa el layout "coverflow" de 360px fijos (ver
+       .tarot-spread--coverflow más abajo) en vez del layout de 3 cartas
+       en fila de escritorio — la altura real de la sección es bastante
+       menor que el estimado de 850px pensado para desktop. Si
+       content-visibility:auto activa la sección con un estimado muy
+       distinto al real, el navegador tiene que recalcular el layout de
+       golpe justo al entrar — de ahí el tirón. Achicamos el estimado acá
+       para que se ajuste mejor al alto real en mobile. */
+    .tarot-section { contain-intrinsic-size: auto 650px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .agenda-badge, .agenda-badge span {
+      animation: none !important;
+    }
+    .tarot-card-inner, .tarot-reading, .tarot-front-art {
+      transition-duration: 0.25s !important;
+    }
+    .tarot-face-front .tarot-face-clip,
+    .tarot-face-front .tarot-face-clip::after {
+      animation: none !important;
+    }
+  }
+
+  /* =========================================
+     FOOTER CÓSMICO ELEGANTE Y LIVIANO
+     (.site-footer base está en estilos.css)
+     ========================================= */
+  .footer-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 40px;
+    margin-bottom: 40px;
+  }
+
+  .footer-col h3 {
+    font-family: var(--font-heading);
+    color: var(--text-main);
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+    letter-spacing: 0.05em;
+  }
+
+  .footer-col p {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+  }
+
+  .footer-links {
+    list-style: none;
+  }
+
+  .footer-links li {
+    margin-bottom: 0.75rem;
+  }
+
+  .footer-links a {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.95rem;
+    transition: color 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .footer-links a:hover {
+    color: var(--gold);
+  }
+
+  .footer-bottom {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-top: 25px;
+    border-top: 1px solid rgba(28, 49, 68, 0.08);
+    text-align: center;
+    font-size: 0.85rem;
+    color: rgba(92, 109, 126, 0.75);
+  }
+
+  @media (max-width: 960px) {
+    .scroll-container { flex-direction: column; padding: 0; }
+
+    /* .text-col pasa a ser un wrapper invisible: sus hijos directos
+       (hero-block y el "stage" del carrusel) se "promueven" a flex items
+       directos de .scroll-container — así los podemos ordenar con
+       `order` sin tocar el HTML ni el JS de desktop. */
+    .text-col { display: contents; }
+
+    .hero-block {
+      order: 1;
+      padding: 12vh 8vw 4vh;
+      text-align: center;
+      min-height: auto;
+    }
+    .hero-block .item-photo {
+      display: block;
+      width: min(60vw, 260px);
+      aspect-ratio: 1 / 1;
+      object-fit: cover;
+      border-radius: 50%;
+      margin: 0 auto 1.5rem;
+      border: 1px solid var(--gold-dim);
+      box-shadow: 0 10px 35px rgba(28, 49, 68, 0.2), 0 0 20px var(--gold-dim);
+      filter: brightness(0.95) contrast(1.05);
+    }
+
+    /* "Stage" del carrusel: agrupa portal + tarjeta + puntitos en un
+       único bloque de una pantalla completa (100dvh), centrado
+       verticalmente, para que entre todo sin necesitar scroll extra. El
+       portal físicamente se reubica acá adentro por JS (ver script),
+       solo mientras estamos en este ancho — en escritorio nunca se
+       mueve y sigue siendo la columna sticky de siempre. */
+    .mobile-carousel-stage {
+      order: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      min-height: 100vh;
+      min-height: 100dvh;
+      box-sizing: border-box;
+      padding: 2rem 0;
+    }
+
+    /* El portal circular queda fijo arriba de la tarjeta: no se mueve al
+       deslizar, solo cambia la imagen de adentro (ver JS, reutiliza la
+       misma activateSection() que en desktop). */
+    .visual-col {
+      display: flex;
+      position: static;
+      width: 100%;
+      height: auto;
+      flex: 0 0 auto;
+      padding: 0 0 0.75rem;
+    }
+    .portal-frame { width: min(40vw, 165px); }
+    /* La animación de "respiración" del portal (portalBreathe) anima
+       box-shadow, que obliga a repintar en cada frame — carísimo en
+       mobile. La desactivamos acá y queda un brillo fijo; los anillos
+       orbitales (transform: rotate) son baratos y siguen girando igual. */
+    .portal-frame { animation: none; }
+
+    /* Carrusel horizontal de terapias con scroll-snap: una tarjeta por
+       pantalla; se desliza en vez de scrollear verticalmente. */
+    .therapy-carousel {
+      display: flex;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      width: 100%;
+      flex: 0 0 auto;
+    }
+    .therapy-carousel::-webkit-scrollbar { display: none; }
+
+    .therapy-item {
+      flex: 0 0 100%;
+      width: 100%;
+      box-sizing: border-box;
+      scroll-snap-align: center;
+      scroll-snap-stop: always;
+      min-height: 0;
+      opacity: 1;
+      padding: 0.25rem 8vw 0.5rem;
+      align-items: center;
+      text-align: center;
+    }
+    /* La tarjeta ya no necesita el fade-up de scroll vertical: aparece
+       completa apenas se desliza hasta el centro del carrusel */
+    .therapy-item h2, .therapy-item p, .therapy-item .btn,
+    .therapy-item .therapy-benefits li {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+
+    .therapy-item h2 { font-size: clamp(1.5rem, 6.5vw, 1.9rem); margin-bottom: 0.5rem; line-height: 1.15; }
+    .therapy-item p { max-width: 100%; font-size: 0.88rem; line-height: 1.45; margin-bottom: 0.75rem; }
+    .therapy-benefits { max-width: 100%; text-align: left; margin-bottom: 1rem; }
+    .therapy-benefits li { font-size: 0.85rem; line-height: 1.3; margin-bottom: 0.4rem; padding-left: 1.25rem; }
+    .btn { margin: 0 auto; padding: 0.75rem 2rem; font-size: 0.82rem; }
+
+    /* Puntitos de progreso del carrusel */
+    .carousel-dots {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      padding-top: 0.5rem;
+      width: 100%;
+      flex: 0 0 auto;
+    }
+    .carousel-dots .dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      border: none;
+      padding: 0;
+      background: var(--gold-dim);
+      opacity: 0.5;
+      transition: opacity 0.3s ease, transform 0.3s ease, background 0.3s ease;
+    }
+    .carousel-dots .dot.active {
+      opacity: 1;
+      background: var(--gold);
+      transform: scale(1.3);
+    }
+
+    .music-player { bottom: 15px; right: 15px; padding: 8px 14px; }
+    .music-info { max-width: 130px; }
+    .site-footer { padding: 40px 6vw 30px; text-align: center; }
+    .footer-col { display: flex; flex-direction: column; align-items: center; }
+
+    .natal-section { padding: 70px 6vw; }
+    .natal-result { flex-direction: column; align-items: center; gap: 2rem; }
+    .natal-legend { max-width: 100%; }
+    /* Mismo problema que ya resolviste en .tarot-section: en mobile el
+       formulario y los textos se apilan y ocupan bastante más alto que
+       el estimado de 950px pensado para desktop (aun con el resultado
+       de la carta natal oculto, que es como arranca la sección). Sin
+       este ajuste, al hacer scroll y activarse content-visibility:auto
+       el navegador recalcula el layout de golpe — el tirón "al cargar
+       los íconos separadores" que se siente al entrar a esta sección. */
+    .natal-section { contain-intrinsic-size: auto 1050px; }
+    /* Mismo ajuste para agenda-section (bastante más leve, pero el
+       estimado de 550px también queda corto en mobile). */
+    .agenda-section { contain-intrinsic-size: auto 620px; }
+  }
+
+  /* =========================================
+     OPTIMIZACIÓN PARA MÓVILES DE GAMA BAJA
+     Se recortan las animaciones decorativas más numerosas y menos
+     notorias (muchos elementos chiquitos animando a la vez es lo que más
+     castiga a un GPU de gama baja). Se conservan las animaciones "de
+     marca" del sitio: el shimmer del logo, el zodiaco flotante, los
+     anillos/orbes del portal y su "respiración", y el giro de las
+     insignias — son pocas, grandes y le dan identidad visual al sitio.
+     ========================================= */
+  @media (max-width: 960px) {
+    .twinkle-star {
+      animation: none;
+      opacity: 0.3;
+    }
+    .constellation-svg .const-a line,
+    .constellation-svg .const-b line {
+      animation: none;
+      opacity: 0.25;
+    }
+    .cross-flare {
+      animation: none;
+      opacity: 0.5;
+      filter: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .twinkle-star,
+    .shooting-star,
+    .cross-flare,
+    .zodiac-bg,
+    .mystic-particle,
+    .stars-layer-1,
+    .stars-layer-2,
+    .orbital-ring,
+    .orbital-ring-outer,
+    .orb,
+    .portal-frame,
+    .constellation-svg .const-a line,
+    .constellation-svg .const-b line {
+      animation: none !important;
+    }
+    * {
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  @media (max-width: 420px) {
+    .music-info { display: none; }
+    .music-player { gap: 0; padding: 10px; }
+  }
+
+/* Estilo para el botón del Header en el index */
+    .nav-sobre-mi-btn {
+      position: absolute;
+      right: 25px;
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      font-weight: 500;
+      text-decoration: none;
+      color: var(--text-main);
+      padding: 6px 16px;
+      border-radius: 50px;
+      border: 1px solid var(--gold-dim);
+      background: rgba(255, 250, 240, 0.75);
+      transition: all 0.3s ease;
+    }
+    .nav-sobre-mi-btn:hover {
+      color: var(--gold);
+      border-color: var(--gold);
+      transform: translateY(-1px);
+      box-shadow: 0 0 10px rgba(201, 152, 47, 0.2);
+    }
