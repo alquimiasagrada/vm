@@ -1178,7 +1178,7 @@
 
   @media (max-width: 640px) {
     .tarot-section { padding: 70px 6vw; }
-    .tarot-section { contain-intrinsic-size: auto 650px; }
+    .tarot-section { contain-intrinsic-size: auto 583px; }
   }
 
   @media (prefers-reduced-motion: reduce) {
