@@ -1252,6 +1252,9 @@
     font-size: 0.85rem;
     color: rgba(92, 109, 126, 0.75);
   }
+  .footer-bottom a {
+    color: var(--teal);
+  }
 
   @media (max-width: 960px) {
     .scroll-container { flex-direction: column; padding: 0; }
